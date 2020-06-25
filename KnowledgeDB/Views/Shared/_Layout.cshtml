@@ -1,0 +1,58 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+
+    <link rel="stylesheet" href="~/lib/twitter-bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/font-awesome/css/all.min.css">
+
+    <style>
+        .input-validation-error {
+            border-color: red;
+            background-color: #fee;
+        }
+    </style>
+    @RenderSection("styles", required: false)
+    <title>@ViewBag.Title</title>
+</head>
+    <body>
+        <nav class="navbar navbar-dark bg-dark navbar-expand-md">
+            <a class="navbar-brand" asp-action="List" asp-controller="Article"><span translate-key="placeholder_sitename"></span></a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+                    @*<li class="nav-item active">
+                        <a class="nav-link" asp-action="List" asp-controller="Article" >Home<span class="sr-only">(current)</span></a>
+                    </li>*@
+                </ul>
+                <form class="form-inline my-2 my-lg-0" asp-controller="Article" asp-action="Search" method="get" >
+                    <input class="form-control mr-sm-2" type="search" name="search" placeholder="Search" aria-label="Search" autocomplete="off">
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                </form>
+            </div>
+        </nav>
+
+        <div>
+            <div>
+                @if(TempData["message"] != null)
+                {
+                    <div class="alert @(TempData["messageClass"] ?? "alert-danger") ">
+                        @TempData["message"]
+                    </div>
+                }
+            </div>
+            <div>
+                @await RenderSectionAsync("header_toolbar", required:false)
+            </div>
+            <div class="row m-1 p-1">
+                <div class="col-9">
+                    @RenderBody()
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

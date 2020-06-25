@@ -1,0 +1,133 @@
+﻿@model Article
+
+@section styles{
+    <link rel="stylesheet" href="~/lib/simplemde/simplemde.min.css" />
+}
+
+@{
+    var tagListString = String.Join(", ", Model.RefToTags.Select(rtt => $"#{rtt.ArticelTag.Name}"));
+}
+
+<h2>EDIT ARTICLE</h2>
+
+<form method="post" asp-action="SaveArticle" asp-controller="ArticleEdit">
+    <input type="hidden" asp-for="ArticleId" />
+
+    <div class="form-group">
+        <label asp-for="Title"></label>
+        <div>
+            <span asp-validation-for="Title" class="text-danger"></span>
+        </div>
+        <input asp-for="Title" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="Summary"></label>
+        <input class="form-control" asp-for="Summary" autocomplete="off" />
+        <span asp-validation-for="Summary" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label>Tags</label>
+        <input class="form-control" type="text" id="article-tags" value="@tagListString" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Content"></label>
+        <div>
+            <div>
+                <textarea id="editor" asp-for="Content" class="form-control"></textarea>
+            </div>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a asp-action="List" asp-controller="Article" class="btn btn-secondary">Cancel</a>
+</form>
+
+<script src="~/lib/simplemde/simplemde.min.js"></script>
+<script>
+    var simplemde = new SimpleMDE({
+        element: document.getElementById("editor"),
+        autoDownloadFontAwesome: false,
+        toolbar: [
+            {
+                name: "bold",
+                action: SimpleMDE.toggleBold,
+                className: "fa fa-bold",
+                title: "Bold",
+            },
+            {
+                name: "italic",
+                action: SimpleMDE.toggleItalic,
+                className: "fa fa-italic",
+                title: "Italic",
+            },
+            {
+                name: "strikethrough",
+                action: SimpleMDE.toggleStrikethrough,
+                className: "fa fa-strikethrough",
+                title: "Strike Through",
+            },
+            "|",
+            {
+                name: "heading",
+                action: SimpleMDE.toggleHeadingSmaller,
+                className: "fa fa-heading",
+                title: "Heading",
+            },
+            "|",
+            {
+                name: "code",
+                action: SimpleMDE.toggleCodeBlock,
+                className: "fa fa-code",
+                title: "Code",
+            },
+            {
+                name: "quote",
+                action: SimpleMDE.toggleBlockquote,
+                className: "fa fa-quote-left",
+                title: "Quote",
+            },
+            "|",
+            {
+                name: "link",
+                action: SimpleMDE.drawLink,
+                className: "fa fa-link",
+                title: "Create Link",
+            },
+            {
+                name: "image",
+                action: SimpleMDE.drawImage,
+                className: "fa fa-images",
+                title: "Insert Image",
+            },
+            "|",
+            {
+                name: "preview",
+                action: SimpleMDE.togglePreview,
+                className: "fa fa-eye no-disable",
+                title: "Toggle Preview",
+            },
+            {
+                name: "side-by-side",
+                action: SimpleMDE.toggleSideBySide,
+                className: "fa fa-columns no-disable no-mobile",
+                title: "Toggle Side by Side",
+            },
+            {
+                name: "fullscreen",
+                action: SimpleMDE.toggleFullScreen,
+                className: "fa fa-arrows-alt no-disable no-mobile",
+                title: "Toggle Fullscreen",
+            },
+            "|",
+            {
+                name: "guide",
+                action: "https://simplemde.com/markdown-guide",
+                className: "fa fa-question-circle",
+                title: "Markdown Guide",
+            },
+        ]
+    });
+
+
+</script>

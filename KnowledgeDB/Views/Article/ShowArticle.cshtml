@@ -1,0 +1,33 @@
+﻿@model ArticleViewModel
+@{ 
+    var article = Model.Article;
+}
+
+@section header_toolbar{
+    <a asp-action="EditArticle" asp-controller="ArticleEdit" asp-route-articleid="@article.ArticleId">Edit</a>
+}
+
+<div>
+    <h3>@article.Title</h3>
+    <div>
+        <h4>Summary: @article.Summary</h4>
+    </div>
+
+    <div>
+        @Html.Raw(@Model.HtmlContent)
+    </div>
+
+    <div class="tags">
+        @if (article.RefToTags != null)
+        {
+            @foreach (var tag in article.RefToTags)
+            {
+                <a asp-action="List" asp-controller="Article" asp-route-articleTagId="@tag.ArticelTag?.ArticleTagId">#@tag.ArticelTag?.Name</a>
+            }
+        }
+    </div>
+    <div>
+        <span>Created: @article.CreatedAt.ToShortDateString()</span>
+        <span>Modified: @article.ModifiedAt.ToShortDateString()</span>
+    </div>
+</div>

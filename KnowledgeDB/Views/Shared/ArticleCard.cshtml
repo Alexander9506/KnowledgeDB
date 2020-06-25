@@ -1,0 +1,9 @@
+﻿@model Article
+
+
+<div>
+    <a asp-action="ShowArticle" asp-controller="Article" asp-route-articleid="@Model.ArticleId">
+        <h3>@Model.Title</h3>
+        <span>@Model.Summary</span>
+    </a>
+</div>

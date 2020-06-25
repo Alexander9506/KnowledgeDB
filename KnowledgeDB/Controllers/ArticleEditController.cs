@@ -1,4 +1,5 @@
-﻿using KnowledgeDB.Models;
+﻿using KnowledgeDB.Development;
+using KnowledgeDB.Models;
 using KnowledgeDB.Models.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -41,11 +42,26 @@ namespace KnowledgeDB.Controllers
         {
             if (ModelState.IsValid)
             {
-                await articleRepository.SaveArticleAsync(article);
-                TempData["message"] = $"{article.Title} has been saved";
-                TempData["messageClass"] = "alert-success";
+                IEnumerable<ArticleTag> rawTagList = article.RefToTags.Select(rtt => rtt.ArticelTag);
+                IEnumerable<String> tagListNames = rawTagList.Select(t => t.Name);
 
-                return RedirectToAction(nameof(EditArticle));
+                List<ArticleTag> dbTagList = articleRepository.ArticleTags.Where(at => tagListNames.Contains(at.Name)).ToList();
+                List<RefArticleArticleTag> finalTagList = rawTagList.Select(tag => new RefArticleArticleTag { ArticelTag = dbTagList.FirstOrDefault(dbTag => dbTag.Name == tag.Name) ?? tag, Article = article}).ToList();
+
+                article.RefToTags = finalTagList;
+
+                if(await articleRepository.SaveArticleAsync(article))
+                {
+                    TempData["message"] = $"{article.Title} has been saved";
+                    TempData["messageClass"] = "alert-success";
+                }
+                else
+                {
+                    TempData["message"] = $"{article.Title} could not be saved";
+                    return View(nameof(EditArticle), article);
+                }
+
+                return RedirectToAction(nameof(ArticleController.List), nameof(ArticleController));
             }
 
             return View(nameof(EditArticle),article);

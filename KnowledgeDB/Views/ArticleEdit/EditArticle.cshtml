@@ -10,7 +10,7 @@
 
 <h2>EDIT ARTICLE</h2>
 
-<form method="post" asp-action="SaveArticle" asp-controller="ArticleEdit">
+<form id="articleForm" method="post" asp-action="SaveArticle" asp-controller="ArticleEdit">
     <input type="hidden" asp-for="ArticleId" />
 
     <div class="form-group">
@@ -28,7 +28,7 @@
 
     <div class="form-group">
         <label>Tags</label>
-        <input class="form-control" type="text" id="article-tags" value="@tagListString" />
+        <input class="form-control" type="text" id="articleTags" value="@tagListString" />
     </div>
 
     <div class="form-group">
@@ -129,5 +129,48 @@
         ]
     });
 
+    addSubmitListener();
 
+    function addSubmitListener() {
+        var element = document.getElementById("articleForm");
+        if (element.addEventListener) {
+            element.addEventListener("submit", function (e) { onSubmit(e); }, false);
+        }
+    }
+
+    function onSubmit(e) {
+        try {
+            AddTagsToForm("articleTags", "articleForm");
+        } catch (err) {
+            e.preventDefault();
+        }
+    }
+
+    function AddTagsToForm(tagElementId, formElementId) {
+        var form = document.getElementById(formElementId);
+        var tagList = GetTagList(tagElementId)
+
+        var tagsContainer = document.createElement("div");
+        for (var i = 0; i < tagList.length; i++) {
+
+            var tagInputElement = document.createElement("input");
+
+            tagInputElement.name = "RefToTags[" + i + "].ArticelTag.Name";
+            tagInputElement.type = "hidden";
+            tagInputElement.value = tagList[i];
+
+            tagsContainer.appendChild(tagInputElement);
+        }
+        form.appendChild(tagsContainer);
+        console.log(tagList);
+    }
+
+    //Split and Clean Input of TagElement
+    function GetTagList(tagElementId) {
+        var tagListElement = document.getElementById(tagElementId);
+        var tagFieldValue = tagListElement.value;
+        var tagList = tagFieldValue.split(",").map((item) => item.replace("#", "").trim());
+
+        return tagList;
+    }
 </script>

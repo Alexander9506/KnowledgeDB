@@ -8,6 +8,20 @@
     var tagListString = String.Join(", ", Model.RefToTags.Select(rtt => $"#{rtt.ArticelTag.Name}"));
 }
 
+@section header_toolbar{
+
+    <a asp-action="EditArticle" asp-controller="ArticleEdit" asp-route-articleid="@Model.ArticleId"
+       button-class="btn btn-primary" image-class="fas fa-save fa-2x p-1">
+        Save
+    </a>
+
+    <a asp-action="DeleteArticle" asp-controller="ArticleEdit" asp-route-articleid="@Model.ArticleId"
+       button-class="btn btn-primary" image-class="fas fa-window-close fa-2x p-1">
+        Discard
+    </a>
+
+}
+
 <h2>EDIT ARTICLE</h2>
 
 <form id="articleForm" method="post" asp-action="SaveArticle" asp-controller="ArticleEdit">

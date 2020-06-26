@@ -4,19 +4,25 @@
 }
 
 @section header_toolbar{
-    <a asp-action="EditArticle" asp-controller="ArticleEdit" asp-route-articleid="@article.ArticleId">Edit</a>
+    <a asp-action="EditArticle" asp-controller="ArticleEdit" asp-route-articleid="@article.ArticleId" 
+       button-class="btn btn-primary" image-class="fas fa-edit fa-2x p-1" >
+        Edit
+    </a>
+
+    <a asp-action="DeleteArticle" asp-controller="ArticleEdit" asp-route-articleid="@article.ArticleId"
+       button-class="btn btn-primary" image-class="fas fa-trash fa-2x p-1">
+        Delete
+    </a>
 }
 
 <div>
-    <h3>@article.Title</h3>
+    <h2>@article.Title</h2>
     <div>
-        <h4>Summary: @article.Summary</h4>
+        <h4 class="text-black-50">@article.Summary</h4>
     </div>
-
-    <div>
+    <div id="content">
         @Html.Raw(@Model.HtmlContent)
     </div>
-
     <div class="tags">
         @if (article.RefToTags != null)
         {
@@ -26,8 +32,8 @@
             }
         }
     </div>
-    <div>
-        <span>Created: @article.CreatedAt.ToShortDateString()</span>
-        <span>Modified: @article.ModifiedAt.ToShortDateString()</span>
+    <div class="float-right text-black-50">
+        <span class="d-block">Created: @article.CreatedAt.ToShortDateString()</span>
+        <span class="d-block">Modified: @article.ModifiedAt.ToShortDateString()</span>
     </div>
 </div>

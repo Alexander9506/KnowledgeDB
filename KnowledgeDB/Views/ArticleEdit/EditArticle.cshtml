@@ -170,6 +170,7 @@
         var tagListElement = document.getElementById(tagElementId);
         var tagFieldValue = tagListElement.value;
         var tagList = tagFieldValue.split(",").map((item) => item.replace("#", "").trim());
+        tagList = tagList.filter(name => name.length > 0);
 
         return tagList;
     }

@@ -5,14 +5,10 @@
 
 @section header_toolbar{
     <a asp-action="EditArticle" asp-controller="ArticleEdit" asp-route-articleid="@article.ArticleId" 
-       button-class="btn btn-primary" image-class="fas fa-edit fa-2x p-1" >
-        Edit
-    </a>
+        image="Edit">Edit</a>
 
     <a asp-action="DeleteArticle" asp-controller="ArticleEdit" asp-route-articleid="@article.ArticleId"
-       button-class="btn btn-primary" image-class="fas fa-trash fa-2x p-1">
-        Delete
-    </a>
+       image="Delete">Delete</a>
 }
 
 <div>

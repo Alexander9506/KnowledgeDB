@@ -1,0 +1,14 @@
+{
+  "Taghelper": {
+    "Keywords": {
+      "Edit": "fas fa-edit",
+      "Delete": "fas fa-trash",
+      "Save": "fas fa-save",
+      "Close": "fas fa-times"
+    },
+    "Default": {
+      "Size": "fa-2x",
+      "Padding": "p-1"
+    }
+  }
+}

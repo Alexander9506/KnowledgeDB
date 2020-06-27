@@ -10,15 +10,8 @@
 
 @section header_toolbar{
 
-    <a asp-action="EditArticle" asp-controller="ArticleEdit" asp-route-articleid="@Model.ArticleId"
-       button-class="btn btn-primary" image-class="fas fa-save fa-2x p-1">
-        Save
-    </a>
-
-    <a asp-action="DeleteArticle" asp-controller="ArticleEdit" asp-route-articleid="@Model.ArticleId"
-       button-class="btn btn-primary" image-class="fas fa-window-close fa-2x p-1">
-        Discard
-    </a>
+    <a image="Save" id="saveButton">Save</a>
+    <a image="Close" asp-action="List" asp-controller="Article">Close</a>
 
 }
 
@@ -53,8 +46,7 @@
             </div>
         </div>
     </div>
-    <button type="submit" class="btn btn-primary">Save</button>
-    <a asp-action="List" asp-controller="Article" class="btn btn-secondary">Cancel</a>
+    <button id="submitButton" type="submit" class="d-none">Save</button>
 </form>
 
 <script src="~/lib/simplemde/simplemde.min.js"></script>
@@ -143,7 +135,16 @@
         ]
     });
 
+    addButtonListener();
     addSubmitListener();
+
+    function addButtonListener() {
+        var saveButton = document.getElementById("saveButton");
+        saveButton.onclick = function () {
+            var submitButton = document.getElementById("submitButton")
+            submitButton.click();
+        };
+    }
 
     function addSubmitListener() {
         var element = document.getElementById("articleForm");

@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.TagHelpers;
 using Microsoft.AspNetCore.Razor.TagHelpers;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,12 +11,20 @@ using System.Threading.Tasks;
 
 namespace KnowledgeDB.Infrastructure
 {
-    [HtmlTargetElement("a", Attributes = "image-class")]
+    [HtmlTargetElement("a", Attributes = "image")]
     public class AnchorImageTagHelper : TagHelper
     {
+        private IConfiguration configuration;
         public bool TextAsTitle { get; set; } = true;
-        public string ButtonClass { get; set; }
-        public string ImageClass { get; set; }
+        public string ButtonClasses { get; set; }
+        public string ImageClasses { get; set; }
+        [HtmlAttributeName("image")]
+        public string ImageKeyword { get; set; }
+
+        public AnchorImageTagHelper(IConfiguration configuration)
+        {
+            this.configuration = configuration;
+        }
 
         public override Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
         {
@@ -22,7 +32,22 @@ namespace KnowledgeDB.Infrastructure
             string ButtonText = childContext.GetContent();
 
             TagBuilder imageTag = new TagBuilder("i");
-            imageTag.AddCssClass(ImageClass);
+
+            //Add configured CssClasses
+            if (!String.IsNullOrWhiteSpace(ImageKeyword))
+            {
+                foreach (var cssClass in GetDefaultImageClasses(ImageKeyword))
+                {
+                    imageTag.AddCssClass(cssClass);
+                }
+                imageTag.AddCssClass(GetImageClasses(ImageKeyword));
+            }
+
+            if (!String.IsNullOrWhiteSpace(ImageClasses))
+            {
+                imageTag.AddCssClass(ImageClasses);
+            }
+
             if (TextAsTitle)
             {
                 output.Attributes.Add("title", ButtonText);
@@ -33,14 +58,24 @@ namespace KnowledgeDB.Infrastructure
 
             output.Attributes.Add(new TagHelperAttribute("type","button"));
             output.Content.AppendHtml(imageTag);
-            if (!String.IsNullOrWhiteSpace(ButtonClass))
+            if (!String.IsNullOrWhiteSpace(ButtonClasses))
             {
-                foreach (var className in ButtonClass.Split(' '))
+                foreach (var className in ButtonClasses.Split(' '))
                 {
                     output.AddClass(className, HtmlEncoder.Default);
                 }
             }
             return Task.CompletedTask;
+        }
+
+        private IEnumerable<string> GetDefaultImageClasses(string imageKeyword)
+        {
+            return configuration.GetSection("Taghelper").GetSection("Default").GetChildren().Select(s => s.Value);
+        }
+
+        private string GetImageClasses(string keyword)
+        {
+            return configuration.GetSection("Taghelper").GetSection("Keywords").GetValue<string>(keyword);
         }
     }
 }

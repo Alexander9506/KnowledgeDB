@@ -1,0 +1,28 @@
+﻿blockquote {
+    font: 14px/22px normal helvetica, sans-serif;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-left: 10px;
+    padding-left: 15px;
+    border-left: 3px solid #ccc;
+}
+
+code {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-left: 3px solid #0275d8;
+    color: #666;
+    page-break-inside: avoid;
+    font: normal normal 14px/16px "Courier New",Courier,Monospace;
+    line-height: 1.0;
+    margin-bottom: 1.6em;
+    max-width: 100%;
+    padding: .5em 1em;
+    display: block;
+    word-wrap: break-word;
+    
+    overflow: auto;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    counter-reset: line;
+}

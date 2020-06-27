@@ -20,6 +20,11 @@ namespace KnowledgeDB
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
+                    webBuilder.ConfigureAppConfiguration((hostingContext, config) =>
+                    {
+                        config.AddJsonFile("taghelperSettings.json", optional: true, reloadOnChange: true);
+                        config.AddEnvironmentVariables();
+                    });
                     webBuilder.UseStartup<Startup>();
                     webBuilder.UseDefaultServiceProvider(options => options.ValidateScopes = false);
                 });

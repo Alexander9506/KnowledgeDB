@@ -1,9 +1,22 @@
 ﻿@model Article
 
-
-<div>
-    <a asp-action="ShowArticle" asp-controller="Article" asp-route-articleid="@Model.ArticleId">
-        <h3>@Model.Title</h3>
-        <span>@Model.Summary</span>
-    </a>
-</div>
+    <article class="clearfix p-2 border-bottom border-bottom-2">
+        <a class="text-dark" asp-action="ShowArticle" asp-controller="Article" asp-route-articleid="@Model.ArticleId">
+            <div class="float-left pr-4">
+                <img src="https://upload.wikimedia.org/wikipedia/en/d/d0/Title_Page_BILD_Newspaper_November_13%2C_2019.jpg" />
+            </div>
+            <div>
+                <h5>@Model.Title</h5>
+                <p>@Model.Summary</p>
+            </div>
+        </a>
+        <div class="tags">
+            @if (Model.RefToTags != null)
+            {
+                @foreach (var tag in Model.RefToTags)
+                {
+                    <a asp-action="List" asp-controller="Article" asp-route-articleTagId="@tag.ArticelTag?.ArticleTagId">#@tag.ArticelTag?.Name</a>
+                }
+            }
+        </div>
+    </article>

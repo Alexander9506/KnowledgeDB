@@ -12,10 +12,11 @@
 }
 
 <div>
-    <h2>@article.Title</h2>
-    <div>
-        <h4 class="text-black-50">@article.Summary</h4>
+    <h1 class="mb-1">@article.Title</h1>
+    <div class="summary mb-5 border-bottom border-bottom-2">
+        <p class="lead">@article.Summary</p>
     </div>
+
     <div id="content">
         @Html.Raw(@Model.HtmlContent)
     </div>

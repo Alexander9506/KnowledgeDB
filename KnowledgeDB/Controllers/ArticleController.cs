@@ -6,6 +6,7 @@ using KnowledgeDB.Models.ViewModels.Article;
 using Markdig;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -62,6 +63,8 @@ namespace KnowledgeDB.Controllers
             ViewBag.Title = "Article Overview";
 
             IEnumerable<Article> articles;
+            ArticleTag filterTag = null;
+
 
             if(articleTagId < 1)
             {
@@ -69,6 +72,7 @@ namespace KnowledgeDB.Controllers
             }
             else
             {
+                filterTag = repository.ArticleTags.FirstOrDefault(a => a.ArticleTagId == articleTagId);
                 articles = repository.Articles.Where(a => a.RefToTags.Select(t => t.ArticelTag.ArticleTagId).Contains(articleTagId));
             }
 
@@ -85,7 +89,8 @@ namespace KnowledgeDB.Controllers
                     PartialViewName = "ArticleCard",
                     Entries = articles.OrderBy(a => a.ModifiedAt).Skip((page - 1) * entriesPerPage).Take(entriesPerPage)
                 },
-                ArticleTagId = articleTagId
+                ArticleTagId = articleTagId,
+                PageName = filterTag != null ? $"Articles with Tag: {filterTag.Name}" : "Last Modified Articles"
             };
             return View(listModel);
         }
@@ -108,7 +113,8 @@ namespace KnowledgeDB.Controllers
                     PartialViewName = "ArticleCard",
                     Entries = articles.OrderBy(a => a.ModifiedAt).Skip((page - 1) * entriesPerPage).Take(entriesPerPage)
                 },
-                ArticleTagId = 0
+                ArticleTagId = 0,
+                PageName = $"You searched for: {search}"
             };
             return View("List", listModel);
         }

@@ -4,9 +4,10 @@
 
 
 @section header_toolbar{ 
-    <h1>Hallo, ich bin die Editbar</h1>
+    <a image="New" asp-action="EditArticle" asp-controller="ArticleEdit">New</a>
 }
-<h3>Articles</h3>
+
+<h3>@Model.PageName</h3>
 
 <div>
     @foreach (var entry in listModel.Entries)

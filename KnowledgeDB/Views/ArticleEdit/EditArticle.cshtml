@@ -5,7 +5,12 @@
 }
 
 @{
-    var tagListString = String.Join(", ", Model.RefToTags.Select(rtt => $"#{rtt.ArticelTag.Name}"));
+    string tagListString = null;
+    if(Model.RefToTags != null)
+    {
+        tagListString = String.Join(", ", Model.RefToTags.Select(rtt => $"#{rtt.ArticelTag.Name}"));
+    }
+
 }
 
 @section header_toolbar{

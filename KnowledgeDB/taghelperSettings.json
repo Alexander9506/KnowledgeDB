@@ -4,6 +4,7 @@
       "Edit": "fas fa-edit",
       "Close": "fas fa-times",
       "Save": "fas fa-save",
+      "New": "fas fa-plus",
       "Delete": {
         "Image": "fas fa-trash",
         "Button": "confirm-delete-dialog"

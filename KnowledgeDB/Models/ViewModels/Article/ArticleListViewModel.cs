@@ -9,5 +9,6 @@ namespace KnowledgeDB.Models.ViewModels.Article
     {
         public ListViewModel ListViewModel { get; set; }
         public int ArticleTagId { get; set; }
+        public string PageName { get; set; }
     }
 }

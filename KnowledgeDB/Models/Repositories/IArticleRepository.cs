@@ -11,5 +11,8 @@ namespace KnowledgeDB.Models.Repositories
         IQueryable<ArticleTag> ArticleTags { get; }
 
         Task<bool> SaveArticleAsync(Article article);
+        Task<bool> DeleteArticleAsync(Article article);
+
+        IEnumerable<Article> SearchArticles(string searchString);
     }
 }

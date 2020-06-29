@@ -41,7 +41,7 @@
             <div class="row">
                 @if (TempData["message"] != null)
                 {
-                    <div class="alert @(TempData["messageClass"] ?? "alert-danger") ">
+                    <div class="col alert @(TempData["messageClass"] ?? "alert-danger") ">
                         @TempData["message"]
                     </div>
                 }
@@ -56,5 +56,6 @@
             </div>
         </div>
     </div>
+    @RenderSection("script", required: false)
 </body>
 </html>

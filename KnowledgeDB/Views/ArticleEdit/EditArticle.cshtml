@@ -9,15 +9,14 @@
 }
 
 @section header_toolbar{
-
     <a image="Save" id="saveButton">Save</a>
     <a image="Close" asp-action="List" asp-controller="Article">Close</a>
-
 }
 
 <h2>EDIT ARTICLE</h2>
 
 <form id="articleForm" method="post" asp-action="SaveArticle" asp-controller="ArticleEdit">
+    <input type="hidden" name="returnUrl" value="@Url.Action("ShowArticle", "Article", new { articleId= Model.ArticleId })" />
     <input type="hidden" asp-for="ArticleId" />
 
     <div class="form-group">

@@ -4,13 +4,11 @@ using KnowledgeDB.Models.Repositories;
 using KnowledgeDB.Models.ViewModels;
 using KnowledgeDB.Models.ViewModels.Article;
 using Markdig;
-using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace KnowledgeDB.Controllers
 {
@@ -29,10 +27,15 @@ namespace KnowledgeDB.Controllers
             return RedirectToAction(nameof(List));
         }
 
-        public IActionResult ShowArticle(int ArticleId)
+        public IActionResult ShowArticle(int articleId)
         {
-            Article article = repository.Articles.FirstOrDefault(a => a.ArticleId == ArticleId);
+            Article article = repository.Articles.FirstOrDefault(a => a.ArticleId == articleId);
 
+            if(article == null)
+            {
+                TempData["message"] = "Article could not be opened";
+                return RedirectToAction(nameof(List));
+            }
             //Setup Markdown Pipline
             var pipeline = new MarkdownPipelineBuilder()
                 .UseAdvancedExtensions()
@@ -56,7 +59,6 @@ namespace KnowledgeDB.Controllers
 
         public IActionResult List(int page = 1, int articleTagId = 0)
         {
-            //TODO: set DefaultValue and improve
             ViewBag.Title = "Article Overview";
 
             IEnumerable<Article> articles;
@@ -90,7 +92,25 @@ namespace KnowledgeDB.Controllers
 
         public IActionResult Search(String search)
         {
-            throw new NotImplementedException();
+            int page = 1;
+            var articles = repository.SearchArticles(search).ToList();
+
+            ArticleListViewModel listModel = new ArticleListViewModel
+            {
+                ListViewModel = new ListViewModel
+                {
+                    Pagination = new PaginationInfo
+                    {
+                        CurrentPage = page,
+                        EntriesPerPage = entriesPerPage,
+                        TotalEntries = articles.Count(),
+                    },
+                    PartialViewName = "ArticleCard",
+                    Entries = articles.OrderBy(a => a.ModifiedAt).Skip((page - 1) * entriesPerPage).Take(entriesPerPage)
+                },
+                ArticleTagId = 0
+            };
+            return View("List", listModel);
         }
     }
 }

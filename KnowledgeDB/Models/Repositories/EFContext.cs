@@ -36,6 +36,10 @@ namespace KnowledgeDB.Models.Repositories
                 .HasOne(raat => raat.ArticelTag)
                 .WithMany(at => at.RefToArticles)
                 .HasForeignKey(raat => raat.ArticleTagId);
+
         }
+
+        
+        
     }
 }

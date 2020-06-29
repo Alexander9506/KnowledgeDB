@@ -2,13 +2,15 @@
   "Taghelper": {
     "Keywords": {
       "Edit": "fas fa-edit",
-      "Delete": "fas fa-trash",
+      "Close": "fas fa-times",
       "Save": "fas fa-save",
-      "Close": "fas fa-times"
+      "Delete": {
+        "Image": "fas fa-trash",
+        "Button": "confirm-delete-dialog"
+      }
     },
     "Default": {
-      "Size": "fa-2x",
-      "Padding": "p-1"
+      "Image": "fa-2x p-1"
     }
   }
 }

@@ -19,6 +19,24 @@ namespace KnowledgeDB.Models.Repositories
 
         public IQueryable<ArticleTag> ArticleTags => context.ArticleTags;
 
+        public async Task<bool> DeleteArticleAsync(Article article)
+        {
+            if(article != null)
+            {
+                try
+                {
+                    context.Remove(article);
+                    await context.SaveChangesAsync();
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    //TODO: Logging
+                }
+            }
+            return false;
+        }
+
         public async Task<bool> SaveArticleAsync(Article article)
         {
             Article dbArticle = context.Articles.Include(a => a.RefToTags).ThenInclude(rtt => rtt.ArticelTag).FirstOrDefault(a => a.ArticleId == article.ArticleId);
@@ -64,36 +82,12 @@ namespace KnowledgeDB.Models.Repositories
             }
         }
 
-        //private void AddArticleTagsToContext(List<RefArticleArticleTag> tags)
-        //{
-        //    foreach (RefArticleArticleTag refTag in tags)
-        //    {
-        //        addArticleRefToContext(refTag);
-        //    }
-        //}
+        public IEnumerable<Article> SearchArticles(string search)
+        {
+            var articleIDList = context.Articles.FromSqlInterpolated($"SELECT * FROM search_article_content({search})").Select(a => a.ArticleId).ToList();
+            var result = this.Articles.Where(a => articleIDList.Contains(a.ArticleId));
 
-        //private void addArticleRefToContext(RefArticleArticleTag refTag)
-        //{
-        //    if (refTag.ArticelTag?.ArticleTagId > 0 && refTag.Article?.ArticleId > 0)
-        //    {
-        //        context.Update(refTag);
-        //    }
-        //    else
-        //    {
-        //        context.Add(refTag);
-        //    }
-        //    addArticleTagToContext(refTag.ArticelTag);
-        //}
-        //private void addArticleTagToContext(ArticleTag tag)
-        //{
-        //    if(tag.ArticleTagId > 0)
-        //    {
-        //        context.Update(tag);
-        //    }
-        //    else
-        //    {
-        //        context.Add(tag);
-        //    }
-        //}
+            return result;
+        }
     }
 }

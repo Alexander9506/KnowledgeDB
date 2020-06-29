@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.TagHelpers;
 using Microsoft.AspNetCore.Razor.TagHelpers;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -28,54 +29,121 @@ namespace KnowledgeDB.Infrastructure
 
         public override Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
         {
-            TagHelperContent childContext = output.GetChildContentAsync().Result;
-            string ButtonText = childContext.GetContent();
-
             TagBuilder imageTag = new TagBuilder("i");
 
-            //Add configured CssClasses
-            if (!String.IsNullOrWhiteSpace(ImageKeyword))
+            string ButtonText = GetButtonText(output);
+            SetButtonTitle(TextAsTitle, ButtonText, output, imageTag);
+
+            //Add Configured classes
+            Dictionary<string,string> classes = GetConfiguredClasses(ImageKeyword);
+
+            //Add Classes addet in HTML
+            AddToDictionary(classes, "Button", ButtonClasses);
+            AddToDictionary(classes, "Image", ImageClasses);
+
+            if (classes.ContainsKey("Button"))
             {
-                foreach (var cssClass in GetDefaultImageClasses(ImageKeyword))
-                {
-                    imageTag.AddCssClass(cssClass);
-                }
-                imageTag.AddCssClass(GetImageClasses(ImageKeyword));
+                AddClassesToOutput(output, classes["Button"]);
             }
 
-            if (!String.IsNullOrWhiteSpace(ImageClasses))
+            if (classes.ContainsKey("Image"))
             {
-                imageTag.AddCssClass(ImageClasses);
-            }
-
-            if (TextAsTitle)
-            {
-                output.Attributes.Add("title", ButtonText);
-            } else
-            {
-                imageTag.InnerHtml.Append(ButtonText);
+                AddClassesToTag(imageTag, classes["Image"]);
             }
 
             output.Attributes.Add(new TagHelperAttribute("type","button"));
             output.Content.AppendHtml(imageTag);
-            if (!String.IsNullOrWhiteSpace(ButtonClasses))
+           
+            return Task.CompletedTask;
+        }
+
+        private void AddClassesToTag(TagBuilder imageTag, string classesString)
+        {
+            if (!String.IsNullOrWhiteSpace(classesString))
             {
-                foreach (var className in ButtonClasses.Split(' '))
+                imageTag.AddCssClass(classesString);
+            }
+        }
+
+        private void AddClassesToOutput(TagHelperOutput output, string classesString)
+        {
+            if (!String.IsNullOrWhiteSpace(classesString))
+            {
+                foreach (var className in classesString.Split(' '))
                 {
                     output.AddClass(className, HtmlEncoder.Default);
                 }
             }
-            return Task.CompletedTask;
         }
 
-        private IEnumerable<string> GetDefaultImageClasses(string imageKeyword)
+        private void SetButtonTitle(bool textAsTitle, string buttonText, TagHelperOutput output, TagBuilder imageTag)
         {
-            return configuration.GetSection("Taghelper").GetSection("Default").GetChildren().Select(s => s.Value);
+            if (textAsTitle)
+            {
+                output.Attributes.Add("title", buttonText);
+            }
+            else
+            {
+                imageTag.InnerHtml.Append(buttonText);
+            }
         }
 
-        private string GetImageClasses(string keyword)
+        private string GetButtonText(TagHelperOutput output)
         {
-            return configuration.GetSection("Taghelper").GetSection("Keywords").GetValue<string>(keyword);
+            TagHelperContent childContext = output.GetChildContentAsync().Result;
+            return childContext.GetContent();
         }
+
+        private Dictionary<string,string> GetConfiguredClasses (string keyword){
+            Dictionary<string, string> result = new Dictionary<string, string>();
+
+            if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                var imageDefault = configuration.GetSection("Taghelper").GetSection("Default");
+                var keywordSection = configuration.GetSection("Taghelper").GetSection("Keywords").GetSection(keyword);
+
+                AddToDictionary(result, imageDefault);
+                AddToDictionary(result, keywordSection);
+            }
+
+            return result;
+        }
+        private void AddToDictionary(Dictionary<string, string> result, IConfigurationSection section)
+        {
+            var children = section.GetChildren();
+            if (children.Any())
+            {
+                AddToDictionary(result, children.ToDictionary(k => k.Key, v => v.Value));
+            }
+            else
+            {
+                AddToDictionary(result, "Image", section.Value);
+            }
+        }
+        private void AddToDictionary(Dictionary<string, string> result, Dictionary<string, string> dict)
+        {
+            foreach (var item in dict)
+            {
+                AddToDictionary(result, item.Key, item.Value);
+            }
+        }
+        private void AddToDictionary(Dictionary<string, string> result, string key, string value)
+        {
+            //Abort if value is empty
+            if (String.IsNullOrWhiteSpace(value))
+            {
+                return;
+            }
+
+            if (result.ContainsKey(key))
+            {
+                result[key] = string.Join(" ", new String[] { result[key], value });
+            }
+            else
+            {
+                result[key] = value;
+            }
+        }
+
     }
 }

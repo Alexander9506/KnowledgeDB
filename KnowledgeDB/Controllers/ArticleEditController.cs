@@ -33,12 +33,27 @@ namespace KnowledgeDB.Controllers
             return View(article);
         }
 
-        public IActionResult DeleteArticle(int articleId)
+        [HttpPost]
+        public async Task<IActionResult> DeleteArticle(int articleId)
         {
-            throw new NotImplementedException();
+            Article toDeleteArticle = articleRepository.Articles.FirstOrDefault(a => a.ArticleId == articleId);
+
+            if (await articleRepository.DeleteArticleAsync(toDeleteArticle))
+            {
+                TempData["message"] = $"{toDeleteArticle.Title} has been deleted";
+                TempData["messageClass"] = "alert-success";
+                
+            }
+            else
+            {
+                TempData["message"] = $"{toDeleteArticle.Title} could not be deleted";
+                return View(nameof(EditArticle), toDeleteArticle);
+            }
+            return RedirectToAction(nameof(ArticleController.List), "Article");
         }
 
-        public async Task<IActionResult> SaveArticle(Article article)
+        [HttpPost]
+        public async Task<IActionResult> SaveArticle(Article article, string returnUrl)
         {
             if (ModelState.IsValid)
             {
@@ -60,8 +75,7 @@ namespace KnowledgeDB.Controllers
                     TempData["message"] = $"{article.Title} could not be saved";
                     return View(nameof(EditArticle), article);
                 }
-
-                return RedirectToAction(nameof(ArticleController.List), nameof(ArticleController));
+                return Redirect(returnUrl);
             }
 
             return View(nameof(EditArticle),article);

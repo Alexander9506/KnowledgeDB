@@ -42,11 +42,15 @@ namespace KnowledgeDB.Models.Repositories
             Article dbArticle = context.Articles.Include(a => a.RefToTags).ThenInclude(rtt => rtt.ArticelTag).FirstOrDefault(a => a.ArticleId == article.ArticleId);
             if (dbArticle == null)
             {
+                //Set Create and Modify Date
+                article.CreatedAt = DateTime.Now;
+                article.ModifiedAt = DateTime.Now;
                 //Just save if Article is new // if Article is new every RefArticleArticleTag must be new too
                 context.Add(article);
             }
             else
             {
+                article.ModifiedAt = DateTime.Now;
                 //Set "new" Values for the existing Article
                 context.Entry(dbArticle).CurrentValues.SetValues(article);
 

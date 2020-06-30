@@ -87,7 +87,7 @@ namespace KnowledgeDB.Controllers
                         TotalEntries = articles.Count(),
                     },
                     PartialViewName = "ArticleCard",
-                    Entries = articles.OrderBy(a => a.ModifiedAt).Skip((page - 1) * entriesPerPage).Take(entriesPerPage)
+                    Entries = articles.OrderByDescending(a => a.ModifiedAt).Skip((page - 1) * entriesPerPage).Take(entriesPerPage)
                 },
                 ArticleTagId = articleTagId,
                 PageName = filterTag != null ? $"Articles with Tag: {filterTag.Name}" : "Last Modified Articles"

@@ -4,6 +4,7 @@ using KnowledgeDB.Models.Repositories;
 using KnowledgeDB.Models.ViewModels;
 using KnowledgeDB.Models.ViewModels.Article;
 using Markdig;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -117,6 +118,16 @@ namespace KnowledgeDB.Controllers
                 PageName = $"You searched for: {search}"
             };
             return View("List", listModel);
+        }
+        public IActionResult Test()
+        {
+            return View();
+        }
+        [HttpPost]
+        public IActionResult Test(List<IFormFile> files)
+        {
+            //TODO: Hier weitermachen: Files müssen umbenannt, geprüft und gespeichert werden.
+            return View();
         }
     }
 }

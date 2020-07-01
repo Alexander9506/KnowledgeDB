@@ -1,0 +1,4 @@
+﻿<form id="form" method="post" enctype="multipart/form-data" asp-action="Test" asp-controller="Article">
+    <input id="file" multiple type="file" name="file" />
+    <input type="button" value="Upload" onclick="UplodeFiles('file', '@Url.Action("Test", "Article")')">
+</form>

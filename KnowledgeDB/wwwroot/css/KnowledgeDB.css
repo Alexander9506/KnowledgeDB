@@ -26,3 +26,12 @@ code {
     white-space: pre-wrap;
     counter-reset: line;
 }
+
+.teaser-image {
+    width:180px;
+    height: 180px;
+}
+
+.teaser-image:not([src]) {
+    background-color: rgba(0, 0, 0, 0.2);
+}

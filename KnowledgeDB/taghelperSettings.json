@@ -8,7 +8,9 @@
       "Delete": {
         "Image": "fas fa-trash",
         "Button": "confirm-delete-dialog"
-      }
+      },
+      "Upload": "fas fa-upload",
+      "Copy": "fas fa-copy"
     },
     "Default": {
       "Image": "fa-2x p-1"

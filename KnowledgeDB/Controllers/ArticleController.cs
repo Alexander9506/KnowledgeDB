@@ -7,21 +7,28 @@ using Markdig;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Hosting;
+using System.IO;
 
 namespace KnowledgeDB.Controllers
 {
     public class ArticleController : Controller
     {
         private IArticleRepository repository;
+        private IWebHostEnvironment environment;
+        private IConfiguration configuration;
         private int entriesPerPage = 10;
 
-        public ArticleController(IArticleRepository repository)
+        public ArticleController(IArticleRepository repository, IWebHostEnvironment environment, IConfiguration configuration)
         {
             this.repository = repository;
+            this.environment = environment;
+            this.configuration = configuration;
         }
 
         public IActionResult Index()
@@ -123,11 +130,21 @@ namespace KnowledgeDB.Controllers
         {
             return View();
         }
+
         [HttpPost]
-        public IActionResult Test(List<IFormFile> files)
+        public async Task<IActionResult> UploadFiles(List<IFormFile> files)
         {
-            //TODO: Hier weitermachen: Files müssen umbenannt, geprüft und gespeichert werden.
-            return View();
+            long size = files.Sum(f => f.Length);
+            String basePath = Path.Combine(environment.WebRootPath, configuration.GetValue<string>("ImagePath"));
+            foreach (var formFile in files)
+            {
+                string filePath = Path.Combine(basePath, Path.GetRandomFileName());
+                using (var stream = System.IO.File.Create(filePath))
+                {
+                    await formFile.CopyToAsync(stream);
+                }
+            }
+            return Ok(new { count = files.Count, size });
         }
     }
 }

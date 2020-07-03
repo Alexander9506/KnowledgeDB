@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.TagHelpers;
 using Microsoft.AspNetCore.Razor.TagHelpers;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -12,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace KnowledgeDB.Infrastructure
 {
-    [HtmlTargetElement("a", Attributes = "image")]
+    [HtmlTargetElement(Attributes = "image")]
     public class AnchorImageTagHelper : TagHelper
     {
         private IConfiguration configuration;
@@ -35,11 +34,14 @@ namespace KnowledgeDB.Infrastructure
             SetButtonTitle(TextAsTitle, ButtonText, output, imageTag);
 
             //Add Configured classes
-            Dictionary<string,string> classes = GetConfiguredClasses(ImageKeyword);
+            Dictionary<string,string> defaultClasses = GetConfiguredDefaultClasses();
 
-            //Add Classes addet in HTML
-            AddToDictionary(classes, "Button", ButtonClasses);
-            AddToDictionary(classes, "Image", ImageClasses);
+            //Override configured classes if declared
+            SetInDictionary(defaultClasses, "Button", ButtonClasses);
+            SetInDictionary(defaultClasses, "Image", ImageClasses);
+
+            Dictionary<string, string> classes = GetConfiguredClasses(ImageKeyword);
+            AddToDictionary(classes, defaultClasses);
 
             if (classes.ContainsKey("Button"))
             {
@@ -57,11 +59,21 @@ namespace KnowledgeDB.Infrastructure
             return Task.CompletedTask;
         }
 
-        private void AddClassesToTag(TagBuilder imageTag, string classesString)
+        private void SetInDictionary(Dictionary<string, string> result, string key, string value)
+        {
+            //Abort if value is empty
+            if (String.IsNullOrWhiteSpace(value))
+            {
+                return;
+            }
+            result[key] = value;
+        }
+
+        private void AddClassesToTag(TagBuilder tag, string classesString)
         {
             if (!String.IsNullOrWhiteSpace(classesString))
             {
-                imageTag.AddCssClass(classesString);
+                tag.AddCssClass(classesString);
             }
         }
 
@@ -99,12 +111,19 @@ namespace KnowledgeDB.Infrastructure
 
             if (!string.IsNullOrWhiteSpace(keyword))
             {
-                var imageDefault = configuration.GetSection("Taghelper").GetSection("Default");
                 var keywordSection = configuration.GetSection("Taghelper").GetSection("Keywords").GetSection(keyword);
-
-                AddToDictionary(result, imageDefault);
                 AddToDictionary(result, keywordSection);
             }
+
+            return result;
+        }
+
+        private Dictionary<string, string> GetConfiguredDefaultClasses()
+        {
+            Dictionary<string, string> result = new Dictionary<string, string>();
+
+            var imageDefault = configuration.GetSection("Taghelper").GetSection("Default");
+            AddToDictionary(result, imageDefault);
 
             return result;
         }

@@ -1,4 +1,102 @@
-﻿<form id="form" method="post" enctype="multipart/form-data" asp-action="Test" asp-controller="Article">
-    <input id="file" multiple type="file" name="file" />
-    <input type="button" value="Upload" onclick="UplodeFiles('file', '@Url.Action("Test", "Article")')">
-</form>
+﻿<div id="file-explorer" class="container">
+    <div class="form-group row">
+        <input id="file-explorer-search" class="form-control col-md-7" type="search" name="search" placeholder="Search" aria-label="Search" autocomplete="off"/>
+        <button type="button" class="btn btn-outline-success col-md-2 ml-1">Search</button>
+        <input id="file-explorer-add-button" multiple type="file" class="d-none" />
+        
+        <button type="button" class="btn btn-outline-secondary col-md-2 ml-1" onclick="document.getElementById('file-explorer-add-button').click()">Add File</button>
+
+        
+    </div>
+
+    <div id="file-explorer-settings" class="row">
+        <span class="text-black-50 col">Settings</span>
+        <div class="custom-control custom-switch col">
+            <input type="checkbox" class="custom-control-input" id="file-explorer-cbox-only-new-files">
+            <label class="custom-control-label" for="file-explorer-cbox-only-new-files">Only new uploaded Files</label>
+        </div>
+        <div class="custom-control custom-switch col">
+            <input type="checkbox" class="custom-control-input" id="file-explorer-cbox-preview-images">
+            <label class="custom-control-label" for="file-explorer-cbox-preview-images">Show preview images</label>
+        </div>
+    </div>
+
+    <div>
+        <div id="file-explorer-header" class="rowjustify-content-end">
+            <span>File Actions</span> <button image="Upload" type="button" image-classes="fa-1x">Upload all files</button>
+        </div>
+        <table class="table" id="file-explorer-file-table">
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="file-explorer-file-table-body">
+                <tr>
+                    <td>FileOne</td>
+                    <td>
+                        <button image="Upload" type="button" image-classes="fa-1x">Upload</button>
+                        <button image="Copy" type="button" image-classes="fa-1x">Copy File URL</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    @*<form id="form" method="post" enctype="multipart/form-data" asp-action="UploadFiles" asp-controller="Article">
+        <input id="file" multiple type="file" name="file" />
+        <input type="button" value="Upload" onclick="UplodeFiles('file', '@Url.Action("Test", "Article")')">
+    </form>*@
+</div>
+
+<script>
+    //TODO: sollte ein eigenes js-file bekommen
+    var listOfUnUploadedFiles = [];
+    var listOfFiles = [];
+    var fileButton = document.getElementById('file-explorer-add-button');
+    fileButton.onchange = function () {
+        var newFiles = [];
+
+        newFiles.push.apply(newFiles, this.files);
+        //add new Files to upload list
+        listOfUnUploadedFiles.push(newFiles);
+        //add new Files to Table
+        AddFilesToTable(newFiles);
+    }
+
+    function AddFilesToTable(fileList) {
+        //TODO: Hier weitermachen buttons brauchen noch listener und die images vom server müssen geladen werden können
+        var tableBody = document.getElementById('file-explorer-file-table-body');
+
+        for (var i = 0; i < fileList.length; i++) {
+            var newRow = document.createElement('tr');
+            var colName = document.createElement('td');
+            var colActions = document.createElement('td');
+
+            listOfFiles.push(fileList[i]);
+
+            newRow.id = "file-explorer-file-row-id-" + listOfFiles.length;
+
+            colName.textContent = fileList[i].name;
+
+            var buttonUpload = document.createElement('button');
+            buttonUpload.className = "fas fa-upload p-1";
+            buttonUpload.title = "Upload";
+
+            var buttonRemove = document.createElement('button');
+            buttonRemove.className = "fas fa-trash p-1";
+            buttonRemove.title = "Remove";
+
+            colActions.appendChild(buttonUpload);
+            colActions.appendChild(buttonRemove);
+
+            newRow.appendChild(colName);
+            newRow.appendChild(colActions);
+
+            tableBody.appendChild(newRow);
+        }
+    }
+
+</script>
+

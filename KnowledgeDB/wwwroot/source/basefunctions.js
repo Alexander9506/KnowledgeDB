@@ -49,6 +49,7 @@ async function UplodeFiles(inputId, action) {
     }
 
 }
+
 async function UploadFile() {
     var tmpForm = document.getElementById('form');
     var action = tmpForm.action;

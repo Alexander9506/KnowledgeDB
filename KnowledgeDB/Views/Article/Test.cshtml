@@ -23,7 +23,7 @@
 
     <div>
         <div id="file-explorer-header" class="rowjustify-content-end">
-            <span>File Actions</span> <button image="Upload" type="button" image-classes="fa-1x">Upload all files</button>
+            <span>File Actions</span> <button image="Upload" type="button" button-classes="btn btn-outline-info" image-classes="fa-1x">Upload all files</button>
         </div>
         <table class="table" id="file-explorer-file-table">
             <thead>
@@ -51,6 +51,11 @@
 </div>
 
 <script>
+
+    //TODO: Anders machen
+    var uploadAction = "@Url.Action("UploadFiles", "Article")";
+
+
     //TODO: sollte ein eigenes js-file bekommen
     var listOfUnUploadedFiles = [];
     var listOfFiles = [];
@@ -59,6 +64,11 @@
         var newFiles = [];
 
         newFiles.push.apply(newFiles, this.files);
+
+        for (var i = 0; i < newFiles.length; i++) {
+            var file = newFiles[i];
+            file.id = file.name;
+        }
         //add new Files to upload list
         listOfUnUploadedFiles.push(newFiles);
         //add new Files to Table
@@ -74,20 +84,30 @@
             var colName = document.createElement('td');
             var colActions = document.createElement('td');
 
-            listOfFiles.push(fileList[i]);
+            var currentFile = fileList[i]; 
 
             newRow.id = "file-explorer-file-row-id-" + listOfFiles.length;
+            newRow.dataset.fileId = currentFile.id;
 
-            colName.textContent = fileList[i].name;
+            listOfFiles.push(currentFile);
 
-            var buttonUpload = document.createElement('button');
-            buttonUpload.className = "fas fa-upload p-1";
-            buttonUpload.title = "Upload";
+            colName.textContent = currentFile.name;
 
-            var buttonRemove = document.createElement('button');
-            buttonRemove.className = "fas fa-trash p-1";
-            buttonRemove.title = "Remove";
+            var buttonUpload = createImageButton("fas fa-upload", "btn btn-outline-info m-1", "Upload")
+            buttonUpload.onclick = function () {
+                var fileId = this.parentElement.parentElement.dataset.fileId;
+                if (fileId) {
+                    ChangeButtonImage(this, "fa fa-spinner fa-spin");
 
+                    UploadFiles([getFileById(fileId)], uploadAction, function (success) {
+                        ChangeButtonImage(this, "fa fa-check")
+                    });
+                }
+                
+            }
+
+            var buttonRemove = createImageButton("fas fa-trash", "btn btn-outline-danger m-1", "Remove")
+            
             colActions.appendChild(buttonUpload);
             colActions.appendChild(buttonRemove);
 
@@ -98,5 +118,33 @@
         }
     }
 
+    function getFileById(fileId) {
+        for (var i = 0; i < listOfFiles.length; i++) {
+            var file = listOfFiles[i];
+            if (file.id === fileId) {
+                return file;
+            }
+        }
+    }
+
+    function ChangeButtonImage(button, imageClasses) {
+        var image = button.firstChild;
+        if (image) {
+            image.className = imageClasses;
+        }
+    }
+
+
+    function createImageButton(imageClasses, buttonClasses, buttonTitle) {
+        var button = document.createElement('button');
+        var image = document.createElement('i');
+
+        image.className = imageClasses;
+        button.title = buttonTitle;
+        button.className = buttonClasses
+        button.appendChild(image);
+
+        return button;
+    }
 </script>
 

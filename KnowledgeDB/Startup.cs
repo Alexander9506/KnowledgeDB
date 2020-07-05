@@ -30,6 +30,7 @@ namespace KnowledgeDB
 
             services.AddTransient<IStringRetriever, StringRetrieverRepository>();
             services.AddTransient<IArticleRepository, ArticleRepository>();
+            services.AddTransient<IFileRepository, FileRepository>();
 
             services.AddMvc();
         }

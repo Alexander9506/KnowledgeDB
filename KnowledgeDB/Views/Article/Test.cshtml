@@ -1,10 +1,10 @@
 ﻿<div id="file-explorer" class="container">
     <div class="form-group row">
         <input id="file-explorer-search" class="form-control col-md-7" type="search" name="search" placeholder="Search" aria-label="Search" autocomplete="off"/>
-        <button type="button" class="btn btn-outline-success col-md-2 ml-1">Search</button>
-        <input id="file-explorer-add-button" multiple type="file" class="d-none" />
+        <button id="file-explorer-search-btn" type="button" class="btn btn-outline-success col-md-2 ml-1">Search</button>
+        <input id="file-explorer-add-file" multiple type="file" class="d-none" />
         
-        <button type="button" class="btn btn-outline-secondary col-md-2 ml-1" onclick="document.getElementById('file-explorer-add-button').click()">Add File</button>
+        <button type="button" class="btn btn-outline-secondary col-md-2 ml-1" onclick="document.getElementById('file-explorer-add-file').click()">Add File</button>
 
         
     </div>
@@ -22,59 +22,130 @@
     </div>
 
     <div>
-        <div id="file-explorer-header" class="rowjustify-content-end">
-            <span>File Actions</span> <button image="Upload" type="button" button-classes="btn btn-outline-info" image-classes="fa-1x">Upload all files</button>
-        </div>
-        <table class="table" id="file-explorer-file-table">
-            <thead>
-                <tr>
-                    <th scope="col">Name</th>
-                    <th scope="col">Actions</th>
-                </tr>
-            </thead>
-            <tbody id="file-explorer-file-table-body">
-                <tr>
-                    <td>FileOne</td>
-                    <td>
-                        <button image="Upload" type="button" image-classes="fa-1x">Upload</button>
-                        <button image="Copy" type="button" image-classes="fa-1x">Copy File URL</button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+        <ul id="file-explorer-files" class="list-group">
+        </ul>
     </div>
-    
-    @*<form id="form" method="post" enctype="multipart/form-data" asp-action="UploadFiles" asp-controller="Article">
-        <input id="file" multiple type="file" name="file" />
-        <input type="button" value="Upload" onclick="UplodeFiles('file', '@Url.Action("Test", "Article")')">
-    </form>*@
 </div>
 
 <script>
+    //TODO: eigenes JS File
+
+    function uuidv4() {
+        return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
+            (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+        );
+    }
+
+    class FileExplorer {
+        constructor(fileExplorerId) {
+            this.fileExplorerId = fileExplorerId;
+            this.fileList = [];
+
+            this.ID_fileExplorerSearch = 'file-explorer-search';
+            this.ID_fileExplorerSearchBtn = 'file-explorer-search-btn';
+            this.ID_fileExplorerAddFile = 'file-explorer-add-file';
+            this.ID_fileExplorerSettings = 'file-explorer-settings';
+            this.ID_fileExplorerCbxOnlyNewFiles = 'file-explorer-cbox-only-new-files';
+            this.ID_fileExplorerCbxPreviewImages = 'file-explorer-cbox-preview-images';
+            this.ID_fileExplorerFiles = 'file-explorer-files';
+
+            this.UploadState_Added = "added";
+            this.UploadState_OnUpload = "onUpload";
+            this.UploadState_Uploaded= "uploaded";
+
+            this.addListener();
+        }
+
+        addListener() {
+            const fileAddButton = document.getElementById(this.ID_fileExplorerAddFile);
+            const self = this;            
+            fileAddButton.onchange = function () {
+                let newFiles = [];
+
+                newFiles.push.apply(newFiles, this.files);
+                self.addFiles(newFiles);                                
+            }
+        }
+
+        addFiles(files) {
+            const self = this;
+            const transformedFiles = files.map(function (f) {
+                return { file: f, fileId: self.generateFileId(f), uploadState: self.UploadState_Added};
+            });
+            this.fileList.push.apply(this.fileList, transformedFiles);
+            this.refreshFileView(this.fileList);
+        }
+
+        generateFileId(file) {
+            return uuidv4() + file.name;
+        }
+
+        getFileById(fileId) {
+            for (let i = 0; i < this.fileList.length; i++) {
+                let file = this.fileList[i];
+                if (file.id === fileId) {
+                    return file;
+                }
+            }
+        }
+
+        refreshFileView(files) {
+            const fileListView = document.getElementById(this.ID_fileExplorerFiles);
+            if (fileListView == null) {
+                return;
+            }
+            //Delete all Contant in the List //TODO: make faster!!!
+            fileListView.innerHTML = '';
+
+            for (var i = 0; i < files.length; i++) {
+                let newFileCard = this.createFileViewCard(files[i]);
+                fileListView.appendChild(newFileCard);
+            }
+        }
+
+        createFileViewCard(file) {
+            const self = this;
+            let currentFile = file;
+
+            let newRow = document.createElement('li');
+            let colName = document.createElement('span');
+            let colActions = document.createElement('div');
+
+            newRow.dataset.fileId = file.fileId;
+            newRow.className = 'justify-content-between list-group-item d-flex justify-content-between';
+
+            colName.textContent = file.file.name;
+
+            if (currentFile.uploadState === self.UploadState_Added) {
+                let buttonUpload = createImageButton("fas fa-upload", "btn btn-outline-info m-1", "Upload")
+                buttonUpload.onclick = function () {
+                const newImage = replaceButtonWithImage(this, "fa fa-spinner fa-spin m-3")
+                currentFile.uploadState = self.UploadState_OnUpload;
+
+                UploadFiles([currentFile.file], uploadAction, function (success) {
+                    console.log("Ready");
+                    ChangeImage(newImage, "fa fa-check m-3");
+                    //ChangeUpload State
+                    currentFile.uploadState = self.UploadState_Uploaded;
+                });
+            }
+                colActions.appendChild(buttonUpload);
+            }
+
+            let buttonRemove = createImageButton("fas fa-trash", "btn btn-outline-danger m-1", "Remove")
+            colActions.appendChild(buttonRemove);
+
+            newRow.appendChild(colName);
+            newRow.appendChild(colActions);
+
+            return newRow;
+        }
+    }
+
+    const fileExplorer = new FileExplorer('file-explorer');
 
     //TODO: Anders machen
     let uploadAction = "@Url.Action("UploadFiles", "Article")";
-
-
-    //TODO: sollte ein eigenes js-file bekommen
-    let listOfUnUploadedFiles = [];
-    let listOfFiles = [];
-    let fileButton = document.getElementById('file-explorer-add-button');
-
-    fileButton.onchange = function () {
-        let newFiles = [];
-
-        newFiles.push.apply(newFiles, this.files);
-
-        for (let i = 0; i < newFiles.length; i++) {
-            let file = newFiles[i];
-            file.id = file.name;
-        }
-        //add new Files to upload list
-        listOfUnUploadedFiles.push(newFiles);
-        //add new Files to Table
-        AddFilesToTable(newFiles);
-    }
 
     function AddFilesToTable(fileList) {
         //TODO: Hier weitermachen buttons brauchen noch listener und die images vom server müssen geladen werden können
@@ -135,15 +206,6 @@
         }
     }
 
-    function getFileById(fileId) {
-        for (let i = 0; i < listOfFiles.length; i++) {
-            let file = listOfFiles[i];
-            if (file.id === fileId) {
-                return file;
-            }
-        }
-    }
-
     function ChangeImage(image, imageClasses) {
         if (image != null) {
             image.className = imageClasses;
@@ -161,5 +223,7 @@
 
         return button;
     }
+
+    
 </script>
 

@@ -14,6 +14,9 @@ namespace KnowledgeDB.Models.Repositories
         public DbSet<Article> Articles { get; set; }
         public DbSet<ArticleTag> ArticleTags { get; set; }
 
+        public DbSet<FileContainer> FileContainers { get; set; }
+
+
         public EFContext(DbContextOptions<EFContext> options, IConfiguration configuration) : base(options)
         {
             this.configuration = configuration;
@@ -39,7 +42,5 @@ namespace KnowledgeDB.Models.Repositories
 
         }
 
-        
-        
     }
 }

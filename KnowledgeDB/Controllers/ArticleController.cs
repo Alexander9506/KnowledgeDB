@@ -14,19 +14,22 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Hosting;
 using System.IO;
+using AngleSharp.Io.Dom;
 
 namespace KnowledgeDB.Controllers
 {
     public class ArticleController : Controller
     {
-        private IArticleRepository repository;
+        private IArticleRepository articleRepository;
+        private IFileRepository fileRepository;
         private IWebHostEnvironment environment;
         private IConfiguration configuration;
         private int entriesPerPage = 10;
 
-        public ArticleController(IArticleRepository repository, IWebHostEnvironment environment, IConfiguration configuration)
+        public ArticleController(IArticleRepository repository, IWebHostEnvironment environment, IConfiguration configuration, IFileRepository fileRepository)
         {
-            this.repository = repository;
+            this.articleRepository = repository;
+            this.fileRepository = fileRepository;
             this.environment = environment;
             this.configuration = configuration;
         }
@@ -38,7 +41,7 @@ namespace KnowledgeDB.Controllers
 
         public IActionResult ShowArticle(int articleId)
         {
-            Article article = repository.Articles.FirstOrDefault(a => a.ArticleId == articleId);
+            Article article = articleRepository.Articles.FirstOrDefault(a => a.ArticleId == articleId);
 
             if(article == null)
             {
@@ -76,12 +79,12 @@ namespace KnowledgeDB.Controllers
 
             if(articleTagId < 1)
             {
-                articles = repository.Articles;
+                articles = articleRepository.Articles;
             }
             else
             {
-                filterTag = repository.ArticleTags.FirstOrDefault(a => a.ArticleTagId == articleTagId);
-                articles = repository.Articles.Where(a => a.RefToTags.Select(t => t.ArticelTag.ArticleTagId).Contains(articleTagId));
+                filterTag = articleRepository.ArticleTags.FirstOrDefault(a => a.ArticleTagId == articleTagId);
+                articles = articleRepository.Articles.Where(a => a.RefToTags.Select(t => t.ArticelTag.ArticleTagId).Contains(articleTagId));
             }
 
             ArticleListViewModel listModel = new ArticleListViewModel
@@ -106,7 +109,7 @@ namespace KnowledgeDB.Controllers
         public IActionResult Search(String search)
         {
             int page = 1;
-            var articles = repository.SearchArticles(search).ToList();
+            var articles = articleRepository.SearchArticles(search).ToList();
 
             ArticleListViewModel listModel = new ArticleListViewModel
             {
@@ -134,17 +137,27 @@ namespace KnowledgeDB.Controllers
         [HttpPost]
         public async Task<IActionResult> UploadFiles(List<IFormFile> files)
         {
-            long size = files.Sum(f => f.Length);
-            String basePath = Path.Combine(environment.WebRootPath, configuration.GetValue<string>("ImagePath"));
-            foreach (var formFile in files)
+            if (files.Any())
             {
-                string filePath = Path.Combine(basePath, Path.GetRandomFileName());
-                using (var stream = System.IO.File.Create(filePath))
+                long size = files.Sum(f => f.Length);
+                String basePath = Path.Combine(environment.WebRootPath, configuration.GetValue<string>("ImagePath"));
+                foreach (var formFile in files)
                 {
-                    await formFile.CopyToAsync(stream);
+                    //Create and Save FileContainer
+                    FileContainer container = FileContainerFactory.CreateFileContainer(formFile, basePath, Path.GetRandomFileName());
+                    await fileRepository.SaveFileContainer(container);
+
+                    if(container != null)
+                    {
+                        using (var stream = System.IO.File.Create(container.FilePathFull))
+                        {
+                            await formFile.CopyToAsync(stream);
+                        }
+                    }
                 }
+                return Ok(new { count = files.Count, size });
             }
-            return Ok(new { count = files.Count, size });
+            return BadRequest();
         }
     }
 }

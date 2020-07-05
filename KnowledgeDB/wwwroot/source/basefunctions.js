@@ -1,4 +1,4 @@
-﻿var deleteConfirmDialogButtons = document.querySelectorAll(".confirm-delete-dialog")
+﻿let deleteConfirmDialogButtons = document.querySelectorAll(".confirm-delete-dialog")
 
 for (var i = 0; i < deleteConfirmDialogButtons.length; i++) {
     deleteConfirmDialogButtons[i].addEventListener("click", function (event) {
@@ -26,32 +26,8 @@ for (var i = 0; i < deleteConfirmDialogButtons.length; i++) {
 }
 
 
-//async function UplodeFiles(inputId, action) {
-//    var inputElement = document.getElementById(inputId);
-//    if (inputElement) {
-//        var formData = new FormData();
-//        for (var i = 0; i < inputElement.files.length; i++) {
-//            formData.append("files", inputElement.files[i]);
-//        }
-
-//        try {
-//            const response = await fetch(action, {
-//                method: 'POST',
-//                body: formData
-//            });
-
-//            if (response.ok) {
-//                console.log('Fertig');
-//            }
-//        } catch (error) {
-//            console.error('Error', error);
-//        }
-//    }
-
-//}
-
 async function UploadFiles(files, action, onUploadFinished) {
-    var formData = new FormData();
+    let formData = new FormData();
     for (var i = 0; i < files.length; i++) {
         formData.append("files", files[i]);
     }
@@ -64,7 +40,7 @@ async function UploadFiles(files, action, onUploadFinished) {
 
         if (response.ok) {
             console.log('Uploaded')
-            if (onUploadFinished) {
+            if (onUploadFinished != null) {
                 onUploadFinished(true);
             }
         }
@@ -73,23 +49,3 @@ async function UploadFiles(files, action, onUploadFinished) {
         onUploadFinished(false);
     }
 }
-
-//async function UploadFile() {
-//    var tmpForm = document.getElementById('form');
-//    var action = tmpForm.action;
-
-//    const formData = new FormData(tmpForm);
-
-//    try {
-//        const response = await fetch(action, {
-//            method: 'POST',
-//            body: formData
-//        });
-
-//        if (response.ok) {
-//            console.log('Fertig');
-//        }
-//    } catch (error) {
-//        console.error('Error', error);
-//    }
-//}

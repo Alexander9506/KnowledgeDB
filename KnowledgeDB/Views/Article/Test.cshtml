@@ -53,20 +53,21 @@
 <script>
 
     //TODO: Anders machen
-    var uploadAction = "@Url.Action("UploadFiles", "Article")";
+    let uploadAction = "@Url.Action("UploadFiles", "Article")";
 
 
     //TODO: sollte ein eigenes js-file bekommen
-    var listOfUnUploadedFiles = [];
-    var listOfFiles = [];
-    var fileButton = document.getElementById('file-explorer-add-button');
+    let listOfUnUploadedFiles = [];
+    let listOfFiles = [];
+    let fileButton = document.getElementById('file-explorer-add-button');
+
     fileButton.onchange = function () {
-        var newFiles = [];
+        let newFiles = [];
 
         newFiles.push.apply(newFiles, this.files);
 
-        for (var i = 0; i < newFiles.length; i++) {
-            var file = newFiles[i];
+        for (let i = 0; i < newFiles.length; i++) {
+            let file = newFiles[i];
             file.id = file.name;
         }
         //add new Files to upload list
@@ -77,14 +78,14 @@
 
     function AddFilesToTable(fileList) {
         //TODO: Hier weitermachen buttons brauchen noch listener und die images vom server müssen geladen werden können
-        var tableBody = document.getElementById('file-explorer-file-table-body');
+        let tableBody = document.getElementById('file-explorer-file-table-body');
 
-        for (var i = 0; i < fileList.length; i++) {
-            var newRow = document.createElement('tr');
-            var colName = document.createElement('td');
-            var colActions = document.createElement('td');
+        for (let i = 0; i < fileList.length; i++) {
+            let newRow = document.createElement('tr');
+            let colName = document.createElement('td');
+            let colActions = document.createElement('td');
 
-            var currentFile = fileList[i]; 
+            let currentFile = fileList[i]; 
 
             newRow.id = "file-explorer-file-row-id-" + listOfFiles.length;
             newRow.dataset.fileId = currentFile.id;
@@ -93,20 +94,22 @@
 
             colName.textContent = currentFile.name;
 
-            var buttonUpload = createImageButton("fas fa-upload", "btn btn-outline-info m-1", "Upload")
+            let buttonUpload = createImageButton("fas fa-upload", "btn btn-outline-info m-1", "Upload")
             buttonUpload.onclick = function () {
-                var fileId = this.parentElement.parentElement.dataset.fileId;
+                let fileId = this.parentElement.parentElement.dataset.fileId;
+                const self = this;
+                
                 if (fileId) {
-                    ChangeButtonImage(this, "fa fa-spinner fa-spin");
+                    const newImage = replaceButtonWithImage(self, "fa fa-spinner fa-spin")
 
                     UploadFiles([getFileById(fileId)], uploadAction, function (success) {
-                        ChangeButtonImage(this, "fa fa-check")
+                        console.log("Ready");
+                        ChangeImage(newImage, "fa fa-check m-1");
                     });
                 }
-                
             }
 
-            var buttonRemove = createImageButton("fas fa-trash", "btn btn-outline-danger m-1", "Remove")
+            let buttonRemove = createImageButton("fas fa-trash", "btn btn-outline-danger m-1", "Remove")
             
             colActions.appendChild(buttonUpload);
             colActions.appendChild(buttonRemove);
@@ -114,30 +117,42 @@
             newRow.appendChild(colName);
             newRow.appendChild(colActions);
 
+            
             tableBody.appendChild(newRow);
         }
     }
 
+    function replaceButtonWithImage(button, imageClasses) {
+        const buttonParent = button.parentElement;
+        if (buttonParent != null) {
+            const image = document.createElement('i')
+            image.className = imageClasses
+
+            buttonParent.insertBefore(image, button);
+            buttonParent.removeChild(button);
+
+            return image;
+        }
+    }
+
     function getFileById(fileId) {
-        for (var i = 0; i < listOfFiles.length; i++) {
-            var file = listOfFiles[i];
+        for (let i = 0; i < listOfFiles.length; i++) {
+            let file = listOfFiles[i];
             if (file.id === fileId) {
                 return file;
             }
         }
     }
 
-    function ChangeButtonImage(button, imageClasses) {
-        var image = button.firstChild;
-        if (image) {
+    function ChangeImage(image, imageClasses) {
+        if (image != null) {
             image.className = imageClasses;
         }
     }
 
-
     function createImageButton(imageClasses, buttonClasses, buttonTitle) {
-        var button = document.createElement('button');
-        var image = document.createElement('i');
+        let button = document.createElement('button');
+        let image = document.createElement('i');
 
         image.className = imageClasses;
         button.title = buttonTitle;

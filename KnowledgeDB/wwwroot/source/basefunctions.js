@@ -39,7 +39,6 @@ async function UploadFiles(files, action, onUploadFinished) {
         });
 
         if (response.ok) {
-            console.log('Uploaded')
             if (onUploadFinished != null) {
                 onUploadFinished(true);
             }

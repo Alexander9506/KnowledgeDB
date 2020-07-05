@@ -25,6 +25,8 @@
         <ul id="file-explorer-files" class="list-group">
         </ul>
     </div>
+
+    <button type="button" onclick="fileExplorer.loadServerImages();">Load Server Images</button>
 </div>
 
 <script>
@@ -53,17 +55,19 @@
             this.UploadState_OnUpload = "onUpload";
             this.UploadState_Uploaded= "uploaded";
 
+            this.ImageUrl = null;
+
             this.addListener();
         }
 
         addListener() {
             const fileAddButton = document.getElementById(this.ID_fileExplorerAddFile);
-            const self = this;            
+            const self = this;
             fileAddButton.onchange = function () {
                 let newFiles = [];
 
                 newFiles.push.apply(newFiles, this.files);
-                self.addFiles(newFiles);                                
+                self.addFiles(newFiles);
             }
         }
 
@@ -108,7 +112,15 @@
             let currentFile = file;
 
             let newRow = document.createElement('li');
-            let colName = document.createElement('span');
+            let colName;
+
+            if ('URL' in currentFile) {
+                colName = document.createElement('a');
+                colName.href = currentFile.URL;
+            } else {
+                colName = document.createElement('span');
+            }
+
             let colActions = document.createElement('div');
 
             newRow.dataset.fileId = file.fileId;
@@ -140,58 +152,41 @@
 
             return newRow;
         }
+
+        async loadServerImages() {
+            const self = this;
+            if (this.ImageUrl != null) {
+                try {
+                    const response = await fetch(this.ImageUrl, {
+                        method: 'GET',
+                    })
+
+                    if (response.ok) {
+                        let rawJson = response.json();
+                        rawJson.then(function (json) {
+                            console.log(JSON.stringify(json));
+                            const serverFiles = json;
+                            const transformedFiles = serverFiles.map(function (fc) {
+                                return {
+                                    file: { name: fc.displayName }, fileId: fc.id, uploadState: self.UploadState_Uploaded, URL: fc.fileUrl };
+                            });
+                            self.fileList.push.apply(self.fileList, transformedFiles);
+                            self.refreshFileView(self.fileList);
+
+                        })
+                    }
+                } catch (error) {
+                    console.error('Error', error);
+                }
+            }
+        }
     }
 
     const fileExplorer = new FileExplorer('file-explorer');
+    fileExplorer.ImageUrl = "@Url.Action("GetImages", "File")";
 
     //TODO: Anders machen
-    let uploadAction = "@Url.Action("UploadFiles", "Article")";
-
-    function AddFilesToTable(fileList) {
-        //TODO: Hier weitermachen buttons brauchen noch listener und die images vom server müssen geladen werden können
-        let tableBody = document.getElementById('file-explorer-file-table-body');
-
-        for (let i = 0; i < fileList.length; i++) {
-            let newRow = document.createElement('tr');
-            let colName = document.createElement('td');
-            let colActions = document.createElement('td');
-
-            let currentFile = fileList[i]; 
-
-            newRow.id = "file-explorer-file-row-id-" + listOfFiles.length;
-            newRow.dataset.fileId = currentFile.id;
-
-            listOfFiles.push(currentFile);
-
-            colName.textContent = currentFile.name;
-
-            let buttonUpload = createImageButton("fas fa-upload", "btn btn-outline-info m-1", "Upload")
-            buttonUpload.onclick = function () {
-                let fileId = this.parentElement.parentElement.dataset.fileId;
-                const self = this;
-                
-                if (fileId) {
-                    const newImage = replaceButtonWithImage(self, "fa fa-spinner fa-spin")
-
-                    UploadFiles([getFileById(fileId)], uploadAction, function (success) {
-                        console.log("Ready");
-                        ChangeImage(newImage, "fa fa-check m-1");
-                    });
-                }
-            }
-
-            let buttonRemove = createImageButton("fas fa-trash", "btn btn-outline-danger m-1", "Remove")
-            
-            colActions.appendChild(buttonUpload);
-            colActions.appendChild(buttonRemove);
-
-            newRow.appendChild(colName);
-            newRow.appendChild(colActions);
-
-            
-            tableBody.appendChild(newRow);
-        }
-    }
+    let uploadAction = "@Url.Action("UploadFiles", "File")";
 
     function replaceButtonWithImage(button, imageClasses) {
         const buttonParent = button.parentElement;
@@ -224,6 +219,6 @@
         return button;
     }
 
-    
+
 </script>
 

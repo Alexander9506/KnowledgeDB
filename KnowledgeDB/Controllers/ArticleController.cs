@@ -134,30 +134,6 @@ namespace KnowledgeDB.Controllers
             return View();
         }
 
-        [HttpPost]
-        public async Task<IActionResult> UploadFiles(List<IFormFile> files)
-        {
-            if (files.Any())
-            {
-                long size = files.Sum(f => f.Length);
-                String basePath = Path.Combine(environment.WebRootPath, configuration.GetValue<string>("ImagePath"));
-                foreach (var formFile in files)
-                {
-                    //Create and Save FileContainer
-                    FileContainer container = FileContainerFactory.CreateFileContainer(formFile, basePath, Path.GetRandomFileName());
-                    await fileRepository.SaveFileContainer(container);
-
-                    if(container != null)
-                    {
-                        using (var stream = System.IO.File.Create(container.FilePathFull))
-                        {
-                            await formFile.CopyToAsync(stream);
-                        }
-                    }
-                }
-                return Ok(new { count = files.Count, size });
-            }
-            return BadRequest();
-        }
+        
     }
 }

@@ -9,7 +9,7 @@ namespace KnowledgeDB.Models
         {
             FileContainer container = new FileContainer
             {
-                FileDisplayName = formFile.Name,
+                FileDisplayName = formFile.FileName,
                 FilePathFull = Path.Combine(path, fileName),
                 FileType = formFile.ContentType
             };

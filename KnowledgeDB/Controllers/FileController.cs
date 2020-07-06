@@ -28,6 +28,21 @@ namespace KnowledgeDB.Controllers
             this.configuration = configuration;
         }
 
+        [HttpPost]
+        public async Task<IActionResult> DeleteFile(int id)
+        {
+            FileContainer container = fileRepository.FileContainers.FirstOrDefault(f => f.FileContainerId == id);
+
+            if(container != null)
+            {
+                if(await fileRepository.DeleteFileContainer(container))
+                {
+                    return Ok();
+                }
+            }
+            return BadRequest();
+        }
+
         [HttpGet]
         public JsonResult GetImages()
         {
@@ -35,7 +50,7 @@ namespace KnowledgeDB.Controllers
             IEnumerable<FilePreviewViewModel> files = fileRepository.FileContainers.ToList().Select(f => new FilePreviewViewModel
             {
                 Id = f.FileContainerId,
-                FileUrl = Path.GetRelativePath(environment.WebRootPath, f.FilePathFull),
+                FileUrl = "/" + Path.GetRelativePath(environment.WebRootPath, f.FilePathFull).Replace("\\","/"),
                 DisplayName = f.FileDisplayName,
                 FileDescription = f.FileDescription,
             });
@@ -55,11 +70,15 @@ namespace KnowledgeDB.Controllers
                 foreach (var formFile in files)
                 {
                     //New random Filename
-                    string originalFileExtension = Path.GetExtension(formFile.FileName);
+                    string originalFileExtension = Path.GetExtension(formFile.FileName).Replace(".", string.Empty);
                     string newFileName = Path.GetRandomFileName();
                     if (allowedFileExtensions.Contains(originalFileExtension))
                     {
-                        newFileName.Replace(".", $".{originalFileExtension}");
+                        if (newFileName.Contains("."))
+                        {
+                            newFileName = newFileName.Substring(0, newFileName.IndexOf(".") - 1);
+                            newFileName += "." + originalFileExtension;
+                        }
                     }
 
                     //Create and Save FileContainer

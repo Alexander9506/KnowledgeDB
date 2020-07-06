@@ -112,22 +112,32 @@
             let currentFile = file;
 
             let newRow = document.createElement('li');
+            let colActions = document.createElement('div');
             let colName;
 
             if ('URL' in currentFile) {
+                //file name as link if URL is provided
                 colName = document.createElement('a');
                 colName.href = currentFile.URL;
+
+                //Add copy url button
+                let buttonCopyUrl = createImageButton("far fa-copy", "btn btn-outline-info m-1", "Copy to Clipboard")
+                buttonCopyUrl.onclick = function () {
+                    copyToClipboard(currentFile.URL);
+                };
+
+                colActions.appendChild(buttonCopyUrl);
             } else {
+                //only file name if no URL
                 colName = document.createElement('span');
             }
-
-            let colActions = document.createElement('div');
 
             newRow.dataset.fileId = file.fileId;
             newRow.className = 'justify-content-between list-group-item d-flex justify-content-between';
 
             colName.textContent = file.file.name;
 
+            //Add upload button
             if (currentFile.uploadState === self.UploadState_Added) {
                 let buttonUpload = createImageButton("fas fa-upload", "btn btn-outline-info m-1", "Upload")
                 buttonUpload.onclick = function () {
@@ -144,13 +154,30 @@
                 colActions.appendChild(buttonUpload);
             }
 
+            //Add remove button
             let buttonRemove = createImageButton("fas fa-trash", "btn btn-outline-danger m-1", "Remove")
+            buttonRemove.onclick = function () {
+                if (currentFile.fileId > 0) {
+                    deleteFileOnServer(currentFile, (f) => deleteFileLocal(f));
+                } else {
+                    deleteFileLocal(currentFile);
+                }
+            }
+
             colActions.appendChild(buttonRemove);
 
             newRow.appendChild(colName);
             newRow.appendChild(colActions);
 
             return newRow;
+        }
+
+        async deleteFileOnServer(file, onFileDelete) {
+            try {
+
+            } catch (error) {
+                console.error('Error', error);
+            }
         }
 
         async loadServerImages() {
@@ -168,11 +195,13 @@
                             const serverFiles = json;
                             const transformedFiles = serverFiles.map(function (fc) {
                                 return {
-                                    file: { name: fc.displayName }, fileId: fc.id, uploadState: self.UploadState_Uploaded, URL: fc.fileUrl };
+                                    file: { name: fc.displayName }, fileId: fc.id, guiId: fc.id, uploadState: self.UploadState_Uploaded, URL: fc.fileUrl };
                             });
+                            //remove all files from the "server"
+                            self.fileList = self.fileList.filter(f => f.uploadState === self.UploadState_Added || f.uploadState === self.UploadState_OnUpload);
+                            //add new loaded server files
                             self.fileList.push.apply(self.fileList, transformedFiles);
                             self.refreshFileView(self.fileList);
-
                         })
                     }
                 } catch (error) {
@@ -185,7 +214,7 @@
     const fileExplorer = new FileExplorer('file-explorer');
     fileExplorer.ImageUrl = "@Url.Action("GetImages", "File")";
 
-    //TODO: Anders machen
+    //TODO: tidy up
     let uploadAction = "@Url.Action("UploadFiles", "File")";
 
     function replaceButtonWithImage(button, imageClasses) {

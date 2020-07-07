@@ -26,7 +26,7 @@
         </ul>
     </div>
 
-    <button type="button" onclick="fileExplorer.loadServerImages();">Load Server Images</button>
+    <button type="button" onclick="fileExplorer.loadServerFiles();">Load Server Images</button>
 </div>
 
 <script>
@@ -121,10 +121,7 @@
                 colName.href = currentFile.URL;
 
                 //Add copy url button
-                let buttonCopyUrl = createImageButton("far fa-copy", "btn btn-outline-info m-1", "Copy to Clipboard")
-                buttonCopyUrl.onclick = function () {
-                    copyToClipboard(currentFile.URL);
-                };
+                let buttonCopyUrl = self.createCopyURLButton(currentFile);
 
                 colActions.appendChild(buttonCopyUrl);
             } else {
@@ -149,6 +146,14 @@
                     ChangeImage(newImage, "fa fa-check m-3");
                     //ChangeUpload State
                     currentFile.uploadState = self.UploadState_Uploaded;
+
+                    //switchout check with copy url Button
+                    setTimeout(
+                        function () {
+                            //1. load the currentFile new from the server(now contains the URL)
+                            //2. swop out the "newFile" with the "oldFile" in fileList
+                            //3. refreshViews
+                        }, 2000);
                 });
             }
                 colActions.appendChild(buttonUpload);
@@ -158,9 +163,9 @@
             let buttonRemove = createImageButton("fas fa-trash", "btn btn-outline-danger m-1", "Remove")
             buttonRemove.onclick = function () {
                 if (currentFile.fileId > 0) {
-                    deleteFileOnServer(currentFile, (f) => deleteFileLocal(f));
+                    self.deleteFileOnServer(currentFile, (f) => self.deleteFileLocal(f));
                 } else {
-                    deleteFileLocal(currentFile);
+                    self.deleteFileLocal(currentFile);
                 }
             }
 
@@ -172,15 +177,42 @@
             return newRow;
         }
 
-        async deleteFileOnServer(file, onFileDelete) {
-            try {
+        createCopyURLButton(file) {
+            const buttonCopyUrl = createImageButton("far fa-copy", "btn btn-outline-info m-1", "Copy to Clipboard")
+            buttonCopyUrl.onclick = function () {
+                copyToClipboard(file.URL);
+            };
+            return buttonCopyUrl;
+        }
 
+        deleteFileLocal(file) {
+            this.fileList = this.fileList.filter(f => f.fileId !== file.fileId);
+            this.refreshFileView(this.fileList);
+        }
+
+        async deleteFileOnServer(file, onFileDelete) {
+            if (file == null || this.DeleteFileUrl == null) {
+                return;
+            }
+
+            let formData = new FormData();
+            formData.append("id", file.fileId)
+            try {
+                const response = await fetch(this.DeleteFileUrl, {
+                    method: "POST",
+                    body:formData
+                });
+                if (response.ok) {
+                    if (onFileDelete != null) {
+                        onFileDelete(file);
+                    }
+                }
             } catch (error) {
                 console.error('Error', error);
             }
         }
 
-        async loadServerImages() {
+        async loadServerFiles() {
             const self = this;
             if (this.ImageUrl != null) {
                 try {
@@ -191,7 +223,6 @@
                     if (response.ok) {
                         let rawJson = response.json();
                         rawJson.then(function (json) {
-                            console.log(JSON.stringify(json));
                             const serverFiles = json;
                             const transformedFiles = serverFiles.map(function (fc) {
                                 return {
@@ -213,6 +244,7 @@
 
     const fileExplorer = new FileExplorer('file-explorer');
     fileExplorer.ImageUrl = "@Url.Action("GetImages", "File")";
+    fileExplorer.DeleteFileUrl = "@Url.Action("DeleteFile", "File")";
 
     //TODO: tidy up
     let uploadAction = "@Url.Action("UploadFiles", "File")";

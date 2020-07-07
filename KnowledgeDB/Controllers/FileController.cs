@@ -4,8 +4,6 @@ using KnowledgeDB.Models.ViewModels.File;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Routing;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -35,9 +33,18 @@ namespace KnowledgeDB.Controllers
 
             if(container != null)
             {
+                string localFilePath = container.FilePathFull;
                 if(await fileRepository.DeleteFileContainer(container))
                 {
-                    return Ok();
+                    try
+                    {
+                        System.IO.File.Delete(localFilePath);
+                        return Ok();
+                    }
+                    catch(Exception e)
+                    {
+                        //TODO: Log
+                    }
                 }
             }
             return BadRequest();

@@ -9,6 +9,7 @@ namespace KnowledgeDB.Models
     public class FileContainer
     {
         public int FileContainerId { get; set; }
+        public string GuiId { get; set; }
         public string FileDisplayName { get; set; }
         public string FileType { get; set; }
         [Required]

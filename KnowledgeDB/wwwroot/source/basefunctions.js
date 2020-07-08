@@ -26,12 +26,7 @@ for (var i = 0; i < deleteConfirmDialogButtons.length; i++) {
 }
 
 
-async function UploadFiles(files, action, onUploadFinished) {
-    let formData = new FormData();
-    for (var i = 0; i < files.length; i++) {
-        formData.append("files", files[i]);
-    }
-
+async function UploadFormData(formData, action, onUploadFinished) {
     try {
         const response = await fetch(action, {
             method: 'POST',

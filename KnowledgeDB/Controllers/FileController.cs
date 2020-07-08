@@ -50,11 +50,18 @@ namespace KnowledgeDB.Controllers
             return BadRequest();
         }
 
-        [HttpGet]
-        public JsonResult GetImages()
+        [HttpPost]
+        public JsonResult GetFiles([FromBody]FileFilter filter)
         {
-            var rawFileContainer = fileRepository.FileContainers.ToList();
-            IEnumerable<FilePreviewViewModel> files = fileRepository.FileContainers.ToList().Select(f => new FilePreviewViewModel
+
+            IEnumerable<FileContainer> rawFileContainer = fileRepository.FileContainers;
+            if(filter?.FileType != null)
+            {
+                string fileType = filter.FileType.ToLower();
+                rawFileContainer = rawFileContainer.Where(fc => fc.FileType.Substring(0, Math.Min(fc.FileType.Length, fileType.Length)).ToLower() == fileType);
+            }
+
+            IEnumerable<FilePreviewViewModel> files = rawFileContainer.ToList().Select(f => new FilePreviewViewModel
             {
                 Id = f.FileContainerId,
                 FileUrl = "/" + Path.GetRelativePath(environment.WebRootPath, f.FilePathFull).Replace("\\","/"),
@@ -66,16 +73,18 @@ namespace KnowledgeDB.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UploadFiles(List<IFormFile> files)
+        public async Task<IActionResult> UploadFiles(List<FileViewModel> files)
         {
             if (files.Any())
             {
-                long size = files.Sum(f => f.Length);
+                long size = files.Sum(f => f.FormFile.Length);
                 String basePath = Path.Combine(environment.WebRootPath, configuration.GetValue<String>("ImagePath"));
                 String[] allowedFileExtensions = configuration.GetSection("AllowedFileExtensions").Get<String[]>();
 
-                foreach (var formFile in files)
+                foreach (var fileViewModel in files)
                 {
+                    IFormFile formFile = fileViewModel.FormFile;
+
                     //New random Filename
                     string originalFileExtension = Path.GetExtension(formFile.FileName).Replace(".", string.Empty);
                     string newFileName = Path.GetRandomFileName();
@@ -90,6 +99,8 @@ namespace KnowledgeDB.Controllers
 
                     //Create and Save FileContainer
                     FileContainer container = FileContainerFactory.CreateFileContainer(formFile, basePath, newFileName);
+                    container.GuiId = fileViewModel.GUIID;
+
                     await fileRepository.SaveFileContainer(container);
 
                     if (container != null)

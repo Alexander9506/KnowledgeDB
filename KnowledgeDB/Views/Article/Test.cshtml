@@ -63,6 +63,8 @@
         addListener() {
             const fileAddButton = document.getElementById(this.ID_fileExplorerAddFile);
             const self = this;
+
+            //New file added listener
             fileAddButton.onchange = function () {
                 let newFiles = [];
 
@@ -74,7 +76,8 @@
         addFiles(files) {
             const self = this;
             const transformedFiles = files.map(function (f) {
-                return { file: f, fileId: self.generateFileId(f), uploadState: self.UploadState_Added};
+                const id = self.generateFileId(f)
+                return { file: f, fileId: id, uploadState: self.UploadState_Added};
             });
             this.fileList.push.apply(this.fileList, transformedFiles);
             this.refreshFileView(this.fileList);
@@ -108,73 +111,86 @@
         }
 
         createFileViewCard(file) {
-            const self = this;
-            let currentFile = file;
-
             let newRow = document.createElement('li');
-            let colActions = document.createElement('div');
-            let colName;
-
-            if ('URL' in currentFile) {
-                //file name as link if URL is provided
-                colName = document.createElement('a');
-                colName.href = currentFile.URL;
-
-                //Add copy url button
-                let buttonCopyUrl = self.createCopyURLButton(currentFile);
-
-                colActions.appendChild(buttonCopyUrl);
-            } else {
-                //only file name if no URL
-                colName = document.createElement('span');
-            }
-
             newRow.dataset.fileId = file.fileId;
             newRow.className = 'justify-content-between list-group-item d-flex justify-content-between';
 
-            colName.textContent = file.file.name;
+            let colActions = document.createElement('div');
+            let colName = this.createNameColumn(file);
+
+            //Add CopyUrl Button
+            if ('URL' in file) {
+                colActions.appendChild(this.createCopyURLButton(file));
+            }
 
             //Add upload button
-            if (currentFile.uploadState === self.UploadState_Added) {
-                let buttonUpload = createImageButton("fas fa-upload", "btn btn-outline-info m-1", "Upload")
-                buttonUpload.onclick = function () {
-                const newImage = replaceButtonWithImage(this, "fa fa-spinner fa-spin m-3")
-                currentFile.uploadState = self.UploadState_OnUpload;
-
-                UploadFiles([currentFile.file], uploadAction, function (success) {
-                    console.log("Ready");
-                    ChangeImage(newImage, "fa fa-check m-3");
-                    //ChangeUpload State
-                    currentFile.uploadState = self.UploadState_Uploaded;
-
-                    //switchout check with copy url Button
-                    setTimeout(
-                        function () {
-                            //1. load the currentFile new from the server(now contains the URL)
-                            //2. swop out the "newFile" with the "oldFile" in fileList
-                            //3. refreshViews
-                        }, 2000);
-                });
-            }
-                colActions.appendChild(buttonUpload);
+            if (file.uploadState === this.UploadState_Added) {
+                colActions.appendChild(this.createUploadButton(file));
             }
 
             //Add remove button
-            let buttonRemove = createImageButton("fas fa-trash", "btn btn-outline-danger m-1", "Remove")
-            buttonRemove.onclick = function () {
-                if (currentFile.fileId > 0) {
-                    self.deleteFileOnServer(currentFile, (f) => self.deleteFileLocal(f));
-                } else {
-                    self.deleteFileLocal(currentFile);
-                }
-            }
-
-            colActions.appendChild(buttonRemove);
+            colActions.appendChild(this.createRemoveButton(file));
 
             newRow.appendChild(colName);
             newRow.appendChild(colActions);
 
             return newRow;
+        }
+
+        createNameColumn(file) {
+            let colName;
+            if ('URL' in file) {
+                //file name as link if URL is provided
+                colName = document.createElement('a');
+                colName.href = file.URL;
+            } else {
+                //only file name if no URL
+                colName = document.createElement('span');
+            }
+            colName.textContent = file.file.name;
+
+            return colName;
+        }
+
+        createRemoveButton(file) {
+            let self = this;
+            let removeButton = createImageButton("fas fa-trash", "btn btn-outline-danger m-1", "Remove")
+            removeButton.onclick = function () {
+                if (file.fileId > 0) {
+                    self.deleteFileOnServer(file, (f) => self.deleteFileLocal(f));
+                } else {
+                    self.deleteFileLocal(file);
+                }
+            }
+            return removeButton;
+        }
+
+        createUploadButton(file) {
+            const self = this;
+            let uploadButton = createImageButton("fas fa-upload", "btn btn-outline-info m-1", "Upload")
+            uploadButton.onclick = function () {
+                const newImage = replaceButtonWithImage(this, "fa fa-spinner fa-spin m-3")
+                file.uploadState = self.UploadState_OnUpload;
+
+                if (self.UploadUrl != null) {
+                    let formData = createUploadFormData([file]);
+                    UploadFiles(formData, self.UploadUrl, function (success) {
+                        ChangeImage(newImage, "fa fa-check m-3");
+
+                        //ChangeUpload State
+                        file.uploadState = self.UploadState_Uploaded;
+
+                        //switchout check with copy url Button
+                        setTimeout(
+                            function () {
+                                self.loadServerFiles();
+                            }, 1000);
+                    });
+                } else {
+                    console.error("No Upload URL defined");
+                }
+            }
+            return uploadButton;
         }
 
         createCopyURLButton(file) {
@@ -217,7 +233,11 @@
             if (this.ImageUrl != null) {
                 try {
                     const response = await fetch(this.ImageUrl, {
-                        method: 'GET',
+                        method: 'Post',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({FileType: "image/p"})
                     })
 
                     if (response.ok) {
@@ -228,7 +248,7 @@
                                 return {
                                     file: { name: fc.displayName }, fileId: fc.id, guiId: fc.id, uploadState: self.UploadState_Uploaded, URL: fc.fileUrl };
                             });
-                            //remove all files from the "server"
+                            //remove all local files from the "server"
                             self.fileList = self.fileList.filter(f => f.uploadState === self.UploadState_Added || f.uploadState === self.UploadState_OnUpload);
                             //add new loaded server files
                             self.fileList.push.apply(self.fileList, transformedFiles);
@@ -240,14 +260,28 @@
                 }
             }
         }
+
+        createUploadFormData(files) {
+            const formData = new FormData();
+            for (var i = 0; i < files.length; i++) {
+                formData.append("FormFile", files[i].file);
+
+                let guiid = files[i].guiId;
+                if (guiid == null) {
+                    guiid = "";
+                }
+                formData.append("GUIID", guiid);
+            }
+            return formData;
+        }
     }
 
     const fileExplorer = new FileExplorer('file-explorer');
-    fileExplorer.ImageUrl = "@Url.Action("GetImages", "File")";
+    fileExplorer.ImageUrl = "@Url.Action("GetFiles", "File")";
     fileExplorer.DeleteFileUrl = "@Url.Action("DeleteFile", "File")";
+    fileExplorer.UploadUrl = "@Url.Action("UploadFiles", "File")";
 
     //TODO: tidy up
-    let uploadAction = "@Url.Action("UploadFiles", "File")";
 
     function replaceButtonWithImage(button, imageClasses) {
         const buttonParent = button.parentElement;

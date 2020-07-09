@@ -1,12 +1,9 @@
 ﻿<div id="file-explorer" class="container">
     <div class="form-group row">
-        <input id="file-explorer-search" class="form-control col-md-7" type="search" name="search" placeholder="Search" aria-label="Search" autocomplete="off"/>
-        <button id="file-explorer-search-btn" type="button" class="btn btn-outline-success col-md-2 ml-1">Search</button>
+        <input id="file-explorer-search" class="form-control col-md-9" type="search" name="search" placeholder="Search" aria-label="Search" autocomplete="off"/>
         <input id="file-explorer-add-file" multiple type="file" class="d-none" />
         
         <button type="button" class="btn btn-outline-secondary col-md-2 ml-1" onclick="document.getElementById('file-explorer-add-file').click()">Add File</button>
-
-        
     </div>
 
     <div id="file-explorer-settings" class="row">
@@ -44,7 +41,6 @@
             this.fileList = [];
 
             this.ID_fileExplorerSearch = 'file-explorer-search';
-            this.ID_fileExplorerSearchBtn = 'file-explorer-search-btn';
             this.ID_fileExplorerAddFile = 'file-explorer-add-file';
             this.ID_fileExplorerSettings = 'file-explorer-settings';
             this.ID_fileExplorerCbxOnlyNewFiles = 'file-explorer-cbox-only-new-files';
@@ -56,7 +52,9 @@
             this.UploadState_Uploaded= "uploaded";
 
             this.ImageUrl = null;
-
+            this.Filter = {
+                FileType: "image"
+            }
             this.addListener();
         }
 
@@ -70,14 +68,34 @@
 
                 newFiles.push.apply(newFiles, this.files);
                 self.addFiles(newFiles);
+
+                //remove file from Input to ensure it can be uploaded again
+                this.value = null;
+
             }
+
+            const search = document.getElementById(this.ID_fileExplorerSearch);
+            if (search != null) {
+                search.addEventListener("input", function (e) {
+                    let filteredFiles = self.filterFileListBySearch(self.fileList, search.value)
+                    self.refreshFileView(filteredFiles);
+                });
+            }
+        }
+
+        getSearchString() {
+            const search = document.getElementById(this.ID_fileExplorerSearch);
+            if (search != null) {
+                return search.value;
+            }
+            return null;
         }
 
         addFiles(files) {
             const self = this;
             const transformedFiles = files.map(function (f) {
                 const id = self.generateFileId(f)
-                return { file: f, fileId: id, uploadState: self.UploadState_Added};
+                return { file: f, fileId: id, guiId: id, uploadState: self.UploadState_Added};
             });
             this.fileList.push.apply(this.fileList, transformedFiles);
             this.refreshFileView(this.fileList);
@@ -173,8 +191,8 @@
                 file.uploadState = self.UploadState_OnUpload;
 
                 if (self.UploadUrl != null) {
-                    let formData = createUploadFormData([file]);
-                    UploadFiles(formData, self.UploadUrl, function (success) {
+                    let formData = self.createUploadFormData([file]);
+                    UploadFormData(formData, self.UploadUrl, function (success) {
                         ChangeImage(newImage, "fa fa-check m-3");
 
                         //ChangeUpload State
@@ -203,7 +221,27 @@
 
         deleteFileLocal(file) {
             this.fileList = this.fileList.filter(f => f.fileId !== file.fileId);
-            this.refreshFileView(this.fileList);
+
+            let filteredBySearch = this.filterFileListBySearch(this.fileList, this.getSearchString());
+            this.refreshFileView(filteredBySearch);
+        }
+
+        filterFileListBySearch(fileList, search) {
+            if (fileList != null && search != null) {
+                let searchSplit = search.split(" ");
+                let filteredList = fileList.filter(f => {
+                    //check if any searchstring matches
+                    for (var i = 0; i < searchSplit.length; i++) {
+                        if (f.file.name.toLowerCase().includes(searchSplit[i])) {
+                            return true;
+                        }
+                    }
+                    return false;
+                });
+                return filteredList;
+            } else {
+                return fileList;
+            }
         }
 
         async deleteFileOnServer(file, onFileDelete) {
@@ -237,7 +275,8 @@
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify({FileType: "image/p"})
+                        //Only Show Images
+                        body: JSON.stringify(self.filter)
                     })
 
                     if (response.ok) {
@@ -252,7 +291,9 @@
                             self.fileList = self.fileList.filter(f => f.uploadState === self.UploadState_Added || f.uploadState === self.UploadState_OnUpload);
                             //add new loaded server files
                             self.fileList.push.apply(self.fileList, transformedFiles);
-                            self.refreshFileView(self.fileList);
+
+                            let filteredBySearch = self.filterFileListBySearch(self.fileList, self.getSearchString());
+                            self.refreshFileView(filteredBySearch);
                         })
                     }
                 } catch (error) {
@@ -264,13 +305,15 @@
         createUploadFormData(files) {
             const formData = new FormData();
             for (var i = 0; i < files.length; i++) {
-                formData.append("FormFile", files[i].file);
+                //needed to supply multiple Objects from same type to asp.net controller
+                formData.append("Files[" + i + "].FormFile", files[i].file);
 
                 let guiid = files[i].guiId;
                 if (guiid == null) {
                     guiid = "";
                 }
-                formData.append("GUIID", guiid);
+                //needed to supply multiple Objects from same type to asp.net controller
+                formData.append("Files[" + i + "].GUIID", guiid);
             }
             return formData;
         }
@@ -280,6 +323,7 @@
     fileExplorer.ImageUrl = "@Url.Action("GetFiles", "File")";
     fileExplorer.DeleteFileUrl = "@Url.Action("DeleteFile", "File")";
     fileExplorer.UploadUrl = "@Url.Action("UploadFiles", "File")";
+    fileExplorer.loadServerFiles();
 
     //TODO: tidy up
 

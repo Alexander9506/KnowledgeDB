@@ -53,7 +53,6 @@ namespace KnowledgeDB.Controllers
         [HttpPost]
         public JsonResult GetFiles([FromBody]FileFilter filter)
         {
-
             IEnumerable<FileContainer> rawFileContainer = fileRepository.FileContainers;
             if(filter?.FileType != null)
             {
@@ -115,5 +114,7 @@ namespace KnowledgeDB.Controllers
             }
             return BadRequest();
         }
+
+        
     }
 }

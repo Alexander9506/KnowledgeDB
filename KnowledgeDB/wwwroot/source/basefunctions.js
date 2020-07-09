@@ -44,7 +44,6 @@ async function UploadFormData(formData, action, onUploadFinished) {
     }
 }
 
-
 function copyToClipboard(text) {
     let body = document.getElementsByTagName("body")[0];
 

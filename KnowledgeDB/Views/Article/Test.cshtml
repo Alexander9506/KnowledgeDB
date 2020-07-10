@@ -133,8 +133,17 @@
             newRow.dataset.fileId = file.fileId;
             newRow.className = 'justify-content-between list-group-item d-flex justify-content-between';
 
+            
             let colActions = document.createElement('div');
-            let colName = this.createNameColumn(file);
+            let colName = document.createElement('div');
+
+            let previewImage = document.createElement('img');
+            if ('URL' in file) {
+                previewImage.src = file.URL+ "?width=80&height=80&keepRatio=true";
+            }
+
+            colName.appendChild(previewImage);
+            colName.appendChild(this.createName(file));
 
             //Add CopyUrl Button
             if ('URL' in file) {
@@ -155,7 +164,7 @@
             return newRow;
         }
 
-        createNameColumn(file) {
+        createName(file) {
             let colName;
             if ('URL' in file) {
                 //file name as link if URL is provided

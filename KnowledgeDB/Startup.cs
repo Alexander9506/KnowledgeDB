@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using KnowledgeDB.Infrastructure;
+using KnowledgeDB.Middleware;
 using KnowledgeDB.Models.Repositories;
 using KnowledgeDB.Models.Repositories.Language;
 using Microsoft.AspNetCore.Builder;
@@ -44,7 +44,7 @@ namespace KnowledgeDB
                 app.UseDeveloperExceptionPage();
                 app.UseStatusCodePages();
             }
-            app.UseTestMiddleware();
+            app.UseScaledImageMiddleware();
             app.UseStaticFiles();
             app.UseRouting();
 

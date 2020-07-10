@@ -138,6 +138,7 @@
             let colName = document.createElement('div');
 
             let previewImage = document.createElement('img');
+            previewImage.style="width:80px;height:80px"
             if ('URL' in file) {
                 previewImage.src = file.URL+ "?width=80&height=80&keepRatio=true";
             }

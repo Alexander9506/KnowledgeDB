@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.VisualBasic.CompilerServices;
+using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -14,48 +17,66 @@ namespace KnowledgeDB.Infrastructure
     public class RequestScaledImageMiddleware
     {
         private readonly RequestDelegate _next;
+        private IWebHostEnvironment _env;
 
-        public RequestScaledImageMiddleware(RequestDelegate next)
+        public RequestScaledImageMiddleware(RequestDelegate next, IWebHostEnvironment env)
         {
             _next = next;
+            _env = env;
         }
 
         public async Task InvokeAsync(HttpContext context)
         {
-            //if request goes to => ~/images/
-                //example URL => ~/images/fasdf.png?width=1024&height=1024
-                //work on
-                    //check if the requested image is available
-                    //scale down and send back
-                //short circuit
-            //else
-                //next delegate
-
             var query = context.Request.Query;
+            bool keepRatio = false;
 
-            if(query.ContainsKey("width") && query.ContainsKey("height")){
+            if (query.ContainsKey("keepRatio") && bool.TryParse(query["keepRatio"], out bool keepRatioAspect)) {
+                keepRatio = keepRatioAspect;
+            }
+
+            if (query.ContainsKey("width") && query.ContainsKey("height")){
                 if(int.TryParse(query["height"], out int height) && int.TryParse(query["width"], out int width))
                 {
-                    //TODO: load the correct image
-                    Image i = Image.FromFile("C:\\Users\\alexa\\source\\repos\\KnowledgeDB\\KnowledgeDB\\wwwroot\\images\\uploads\\03vy0nt.jpg");
-                    Bitmap scaledImage = ResizeImage(i, width, height);
+                    string imagePath = context.Request.Path;
+                    IFileProvider fileProvider = _env.WebRootFileProvider;
+                    IFileInfo fileInfo = fileProvider.GetFileInfo(imagePath);
+                    if (fileInfo.Exists) {
+                        Image i = Image.FromStream(fileInfo.CreateReadStream());
+                        Bitmap scaledImage = ResizeImage(i, width, height, keepRatio);
 
-                    MemoryStream memStream;
-                    using (memStream = new MemoryStream()){
-                        scaledImage.Save(memStream, ImageFormat.Png);
-                        memStream.Seek(0, SeekOrigin.Begin);
-                        await memStream.CopyToAsync(context.Response.Body);
+                        MemoryStream memStream;
+                        using (memStream = new MemoryStream()) {
+                            scaledImage.Save(memStream, ImageFormat.Png);
+                            memStream.Seek(0, SeekOrigin.Begin);
+                            await memStream.CopyToAsync(context.Response.Body);
+                        }
+                        return;
+                    } else {
+                        context.Response.StatusCode = 400; //Bad Request                
+                        await context.Response.WriteAsync("Image not available");
+                        return;
                     }
-                    return;
                 }
             }
 
             await _next(context);
         }
 
-        //TODO: should'nt change aspect ratio
-        private Bitmap ResizeImage(Image image, int width, int height)
+        private Bitmap ResizeImage(Image image, int desiredWidth, int desiredHeight, bool keepRation)
         {
+            int width = desiredWidth;
+            int height = desiredHeight;
+
+            if (keepRation) {
+                double widthPercent = desiredWidth / ((double)image.Width);
+                double heightPercent = desiredHeight / ((double)image.Height);
+
+                double minPercent = Math.Min(widthPercent, heightPercent);
+
+                width =  (int)(((double)image.Width) * minPercent);
+                height = (int)(((double)image.Height) * minPercent);
+            }
+
             var destRect = new Rectangle(0, 0, width, height);
             var destImage = new Bitmap(width, height);
 
@@ -79,9 +100,6 @@ namespace KnowledgeDB.Infrastructure
             return destImage;
         }
     }
-
-
-    
 
     public static class TestMiddlewareExtensions
     {

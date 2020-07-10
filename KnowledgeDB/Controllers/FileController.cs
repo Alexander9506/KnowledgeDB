@@ -100,17 +100,21 @@ namespace KnowledgeDB.Controllers
                     FileContainer container = FileContainerFactory.CreateFileContainer(formFile, basePath, newFileName);
                     container.GuiId = fileViewModel.GUIID;
 
-                    await fileRepository.SaveFileContainer(container);
-
                     if (container != null)
                     {
-                        using (var stream = System.IO.File.Create(container.FilePathFull))
-                        {
-                            await formFile.CopyToAsync(stream);
+                        try {
+                            using (var stream = System.IO.File.Create(container.FilePathFull))
+                            {
+                                await formFile.CopyToAsync(stream);
+                            }
+                            await fileRepository.SaveFileContainer(container);
+                            
+                            return Ok(new { count = files.Count, size });
+                        } catch (Exception e) {
+                            //TODO: Logging
                         }
                     }
                 }
-                return Ok(new { count = files.Count, size });
             }
             return BadRequest();
         }

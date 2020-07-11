@@ -280,7 +280,7 @@
 
         filterFileListBySearch(fileList, search) {
             if (fileList != null && search != null) {
-                let searchSplit = search.split(" ");
+                let searchSplit = search.toLowerCase().split(" ");
                 let filteredList = fileList.filter(f => {
                     //check if any searchstring matches
                     for (var i = 0; i < searchSplit.length; i++) {

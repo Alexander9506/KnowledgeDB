@@ -40,6 +40,7 @@
             this.fileExplorerId = fileExplorerId;
             this.fileList = [];
 
+            // Element IDs
             this.ID_fileExplorerSearch = 'file-explorer-search';
             this.ID_fileExplorerAddFile = 'file-explorer-add-file';
             this.ID_fileExplorerSettings = 'file-explorer-settings';
@@ -47,9 +48,19 @@
             this.ID_fileExplorerCbxPreviewImages = 'file-explorer-cbox-preview-images';
             this.ID_fileExplorerFiles = 'file-explorer-files';
 
+            //File Upload States
             this.UploadState_Added = "added";
             this.UploadState_OnUpload = "onUpload";
-            this.UploadState_Uploaded= "uploaded";
+            this.UploadState_Uploaded = "uploaded";
+
+            //Css
+            this.CSS_PreviewImage = "file-explorer-previewimage";
+
+            //cbx
+            this.ShowPreviewImage = false;
+
+            //Create URL for previewImage
+            this.CreatePreviewImageURL = null;
 
             this.ImageUrl = null;
             this.Filter = {
@@ -77,8 +88,15 @@
             const search = document.getElementById(this.ID_fileExplorerSearch);
             if (search != null) {
                 search.addEventListener("input", function (e) {
-                    let filteredFiles = self.filterFileListBySearch(self.fileList, search.value)
-                    self.refreshFileView(filteredFiles);
+                    self.refresh(search.value);
+                });
+            }
+
+            const previewImageCbx = document.getElementById(this.ID_fileExplorerCbxPreviewImages);
+            if (previewImageCbx != null) {
+                previewImageCbx.addEventListener("change", (e) => {
+                    self.ShowPreviewImage = e.target.checked;
+                    self.refresh();
                 });
             }
         }
@@ -114,12 +132,25 @@
             }
         }
 
+        refresh(searchString = null) {
+            let files = null;
+            if (searchString != null) {
+                files = this.filterFileListBySearch(this.fileList, this.getSearchString());
+            } else {
+                files = this.fileList;
+            }
+
+            this.refreshFileView(files);
+        }
+
         refreshFileView(files) {
             const fileListView = document.getElementById(this.ID_fileExplorerFiles);
             if (fileListView == null) {
                 return;
             }
-            //Delete all Contant in the List //TODO: make faster!!!
+
+            //TODO: make faster!!!
+            //Delete all Contant in the List 
             fileListView.innerHTML = '';
 
             for (var i = 0; i < files.length; i++) {
@@ -137,13 +168,11 @@
             let colActions = document.createElement('div');
             let colName = document.createElement('div');
 
-            let previewImage = document.createElement('img');
-            previewImage.style="width:80px;height:80px"
-            if ('URL' in file) {
-                previewImage.src = file.URL+ "?width=80&height=80&keepRatio=true";
+            if (this.ShowPreviewImage === true) {
+                let previewImage = this.createPreviewImage(file);
+                colName.appendChild(previewImage);
             }
 
-            colName.appendChild(previewImage);
             colName.appendChild(this.createName(file));
 
             //Add CopyUrl Button
@@ -163,6 +192,19 @@
             newRow.appendChild(colActions);
 
             return newRow;
+        }
+
+        createPreviewImage(file) {
+            let previewImage = document.createElement('img');
+            previewImage.className = this.CSS_PreviewImage;
+            if (this.CreatePreviewImageURL != null) {
+                previewImage.src = this.CreatePreviewImageURL(file);
+            } else {
+                previewImage.src = "#"
+                console.error('Can not create PreviewImageURL: CreatePreviewImageURL == null')
+            }
+            
+            return previewImage;
         }
 
         createName(file) {
@@ -330,9 +372,20 @@
     }
 
     const fileExplorer = new FileExplorer('file-explorer');
+
     fileExplorer.ImageUrl = "@Url.Action("GetFiles", "File")";
     fileExplorer.DeleteFileUrl = "@Url.Action("DeleteFile", "File")";
     fileExplorer.UploadUrl = "@Url.Action("UploadFiles", "File")";
+
+    fileExplorer.CreatePreviewImageURL = (file) => {
+        if ('URL' in file) {
+            return file.URL + "?width=80&height=80&keepRatio=true&imbedInBackground=true";
+        } else {
+            return ""
+        }
+    }
+
+
     fileExplorer.loadServerFiles();
 
     //TODO: tidy up

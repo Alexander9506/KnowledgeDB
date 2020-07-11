@@ -32,6 +32,11 @@ code {
     height: 180px;
 }
 
+.file-explorer-previewimage {
+    width: 80px;
+    height: 80px;
+}
+
 .teaser-image:not([src]) {
     background-color: rgba(0, 0, 0, 0.2);
 }

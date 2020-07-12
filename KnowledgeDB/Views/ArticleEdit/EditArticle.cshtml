@@ -6,16 +6,19 @@
 
 @{
     string tagListString = null;
-    if(Model.RefToTags != null)
+    if (Model.RefToTags != null)
     {
         tagListString = String.Join(", ", Model.RefToTags.Select(rtt => $"#{rtt.ArticelTag.Name}"));
     }
-
 }
 
 @section header_toolbar{
     <a image="Save" id="saveButton">Save</a>
     <a image="Close" asp-action="List" asp-controller="Article">Close</a>
+}
+
+@section expanding_sidebar{
+    <h1>Look at me i'm fabulous</h1>
 }
 
 <h2>EDIT ARTICLE</h2>
@@ -53,144 +56,150 @@
     <button id="submitButton" type="submit" class="d-none">Save</button>
 </form>
 
-<script src="~/lib/simplemde/simplemde.min.js"></script>
-<script>
-    var simplemde = new SimpleMDE({
-        element: document.getElementById("editor"),
-        autoDownloadFontAwesome: false,
-        toolbar: [
-            {
-                name: "bold",
-                action: SimpleMDE.toggleBold,
-                className: "fa fa-bold",
-                title: "Bold",
-            },
-            {
-                name: "italic",
-                action: SimpleMDE.toggleItalic,
-                className: "fa fa-italic",
-                title: "Italic",
-            },
-            {
-                name: "strikethrough",
-                action: SimpleMDE.toggleStrikethrough,
-                className: "fa fa-strikethrough",
-                title: "Strike Through",
-            },
-            "|",
-            {
-                name: "heading",
-                action: SimpleMDE.toggleHeadingSmaller,
-                className: "fa fa-heading",
-                title: "Heading",
-            },
-            "|",
-            {
-                name: "code",
-                action: SimpleMDE.toggleCodeBlock,
-                className: "fa fa-code",
-                title: "Code",
-            },
-            {
-                name: "quote",
-                action: SimpleMDE.toggleBlockquote,
-                className: "fa fa-quote-left",
-                title: "Quote",
-            },
-            "|",
-            {
-                name: "link",
-                action: SimpleMDE.drawLink,
-                className: "fa fa-link",
-                title: "Create Link",
-            },
-            {
-                name: "image",
-                action: SimpleMDE.drawImage,
-                className: "fa fa-images",
-                title: "Insert Image",
-            },
-            "|",
-            {
-                name: "preview",
-                action: SimpleMDE.togglePreview,
-                className: "fa fa-eye no-disable",
-                title: "Toggle Preview",
-            },
-            {
-                name: "side-by-side",
-                action: SimpleMDE.toggleSideBySide,
-                className: "fa fa-columns no-disable no-mobile",
-                title: "Toggle Side by Side",
-            },
-            {
-                name: "fullscreen",
-                action: SimpleMDE.toggleFullScreen,
-                className: "fa fa-arrows-alt no-disable no-mobile",
-                title: "Toggle Fullscreen",
-            },
-            "|",
-            {
-                name: "guide",
-                action: "https://simplemde.com/markdown-guide",
-                className: "fa fa-question-circle",
-                title: "Markdown Guide",
-            },
-        ]
-    });
+@section script{
+    <script src="~/lib/simplemde/simplemde.min.js"></script>
+    <script>
+        var simplemde = new SimpleMDE({
+            element: document.getElementById("editor"),
+            autoDownloadFontAwesome: false,
+            toolbar: [
+                {
+                    name: "bold",
+                    action: SimpleMDE.toggleBold,
+                    className: "fa fa-bold",
+                    title: "Bold",
+                },
+                {
+                    name: "italic",
+                    action: SimpleMDE.toggleItalic,
+                    className: "fa fa-italic",
+                    title: "Italic",
+                },
+                {
+                    name: "strikethrough",
+                    action: SimpleMDE.toggleStrikethrough,
+                    className: "fa fa-strikethrough",
+                    title: "Strike Through",
+                },
+                "|",
+                {
+                    name: "heading",
+                    action: SimpleMDE.toggleHeadingSmaller,
+                    className: "fa fa-heading",
+                    title: "Heading",
+                },
+                "|",
+                {
+                    name: "code",
+                    action: SimpleMDE.toggleCodeBlock,
+                    className: "fa fa-code",
+                    title: "Code",
+                },
+                {
+                    name: "quote",
+                    action: SimpleMDE.toggleBlockquote,
+                    className: "fa fa-quote-left",
+                    title: "Quote",
+                },
+                "|",
+                {
+                    name: "link",
+                    action: SimpleMDE.drawLink,
+                    className: "fa fa-link",
+                    title: "Create Link",
+                },
+                {
+                    name: "image",
+                    action: SimpleMDE.drawImage,
+                    className: "fa fa-images",
+                    title: "Insert Image",
+                },
+                "|",
+                {
+                    name: "preview",
+                    action: SimpleMDE.togglePreview,
+                    className: "fa fa-eye no-disable",
+                    title: "Toggle Preview",
+                },
+                {
+                    name: "side-by-side",
+                    action: SimpleMDE.toggleSideBySide,
+                    className: "fa fa-columns no-disable no-mobile",
+                    title: "Toggle Side by Side",
+                },
+                {
+                    name: "fullscreen",
+                    action: SimpleMDE.toggleFullScreen,
+                    className: "fa fa-arrows-alt no-disable no-mobile",
+                    title: "Toggle Fullscreen",
+                },
+                "|",
+                {
+                    name: "guide",
+                    action: "https://simplemde.com/markdown-guide",
+                    className: "fa fa-question-circle",
+                    title: "Markdown Guide",
+                },
+            ]
+        });
 
-    addButtonListener();
-    addSubmitListener();
+        addButtonListener();
+        addSubmitListener();
 
-    function addButtonListener() {
-        var saveButton = document.getElementById("saveButton");
-        saveButton.onclick = function () {
-            var submitButton = document.getElementById("submitButton")
-            submitButton.click();
-        };
-    }
-
-    function addSubmitListener() {
-        var element = document.getElementById("articleForm");
-        if (element.addEventListener) {
-            element.addEventListener("submit", function (e) { onSubmit(e); }, false);
+        function addButtonListener() {
+            var saveButton = document.getElementById("saveButton");
+            saveButton.onclick = function () {
+                var submitButton = document.getElementById("submitButton")
+                submitButton.click();
+            };
         }
-    }
 
-    function onSubmit(e) {
-        try {
-            AddTagsToForm("articleTags", "articleForm");
-        } catch (err) {
-            e.preventDefault();
+        function addSubmitListener() {
+            var element = document.getElementById("articleForm");
+            if (element.addEventListener) {
+                element.addEventListener("submit", function (e) { onSubmit(e); }, false);
+            }
         }
-    }
 
-    function AddTagsToForm(tagElementId, formElementId) {
-        var form = document.getElementById(formElementId);
-        var tagList = GetTagList(tagElementId)
-
-        var tagsContainer = document.createElement("div");
-        for (var i = 0; i < tagList.length; i++) {
-
-            var tagInputElement = document.createElement("input");
-
-            tagInputElement.name = "RefToTags[" + i + "].ArticelTag.Name";
-            tagInputElement.type = "hidden";
-            tagInputElement.value = tagList[i];
-
-            tagsContainer.appendChild(tagInputElement);
+        function onSubmit(e) {
+            try {
+                AddTagsToForm("articleTags", "articleForm");
+            } catch (err) {
+                e.preventDefault();
+            }
         }
-        form.appendChild(tagsContainer);
-        console.log(tagList);
-    }
 
-    //Split and Clean Input of TagElement
-    function GetTagList(tagElementId) {
-        var tagListElement = document.getElementById(tagElementId);
-        var tagFieldValue = tagListElement.value;
-        var tagList = tagFieldValue.split(",").map((item) => item.replace("#", "").trim());
-        tagList = tagList.filter(name => name.length > 0);
+        function AddTagsToForm(tagElementId, formElementId) {
+            var form = document.getElementById(formElementId);
+            var tagList = GetTagList(tagElementId)
 
-        return tagList;
-    }
-</script>
+            var tagsContainer = document.createElement("div");
+            for (var i = 0; i < tagList.length; i++) {
+
+                var tagInputElement = document.createElement("input");
+
+                tagInputElement.name = "RefToTags[" + i + "].ArticelTag.Name";
+                tagInputElement.type = "hidden";
+                tagInputElement.value = tagList[i];
+
+                tagsContainer.appendChild(tagInputElement);
+            }
+            form.appendChild(tagsContainer);
+            console.log(tagList);
+        }
+
+        //Split and Clean Input of TagElement
+        function GetTagList(tagElementId) {
+            var tagListElement = document.getElementById(tagElementId);
+            var tagFieldValue = tagListElement.value;
+            var tagList = tagFieldValue.split(",").map((item) => item.replace("#", "").trim());
+            tagList = tagList.filter(name => name.length > 0);
+
+            return tagList;
+        }
+
+        scaleMainContent("col-md-8");
+
+    </script>
+}
+

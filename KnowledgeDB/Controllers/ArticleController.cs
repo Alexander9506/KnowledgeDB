@@ -129,11 +129,6 @@ namespace KnowledgeDB.Controllers
             };
             return View("List", listModel);
         }
-        public IActionResult Test()
-        {
-            return View();
-        }
 
-        
     }
 }

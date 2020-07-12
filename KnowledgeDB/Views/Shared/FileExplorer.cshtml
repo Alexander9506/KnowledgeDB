@@ -1,15 +1,15 @@
-﻿<div id="file-explorer" class="container">
-    <div class="form-group row">
-        <input id="file-explorer-search" class="form-control col-md-9" type="search" name="search" placeholder="Search" aria-label="Search" autocomplete="off" />
+﻿<div id="file-explorer">
+    <div class="form-group">
+        <input id="file-explorer-search" class="form-control col-md-10" type="search" name="search" placeholder="Search" aria-label="Search" autocomplete="off" />
         <input id="file-explorer-add-file" multiple type="file" class="d-none" />
 
-        <div class="col">
+        <div class="col-md-2 justify-content-around">
             <button type="button" class="btn btn-outline-secondary ml-1" onclick="document.getElementById('file-explorer-add-file').click()">Add File</button>
-            <button type="button" image="Sync" class="btn btn-outline-success ml-1" onclick="fileExplorer.loadServerFiles();">Reload</button>
+            <button type="button" image="Sync" image-classes="p-1" class="btn btn-outline-success ml-1" onclick="fileExplorer.loadServerFiles();">Reload</button>
         </div>
     </div>
 
-    <div id="file-explorer-settings" class="row">
+    <div id="file-explorer-settings" >
         <span class="text-black-50 col">Settings</span>
         <div class="custom-control custom-switch col">
             <input type="checkbox" class="custom-control-input" id="file-explorer-cbox-preview-images">
@@ -21,8 +21,6 @@
         <ul id="file-explorer-files" class="list-group">
         </ul>
     </div>
-
-    <button type="button" onclick="fileExplorer.loadServerFiles();">Load Server Images</button>
 </div>
 
 <script src="~/source/GUICreation.js"></script>

@@ -82,3 +82,16 @@ function copyToClipboard(text) {
     document.execCommand("copy");
     body.removeChild(tmpInput);   
 }
+
+function scaleMainContent(colSize) {
+    let main = document.getElementById("main");
+    let classes = main.className.split(" ");
+
+    for (var i = 0; i < classes.length; i++) {
+        if (classes[i].includes("col")) {
+            main.classList.remove(classes[i]);
+        }
+    }
+
+    main.classList.add(colSize);
+}

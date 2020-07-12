@@ -12,8 +12,13 @@
             border-color: red;
             background-color: #fee;
         }
+
+        #main {
+            transition: .5s; 
+        }
+
     </style>
-    @RenderSection("styles", required: false)
+    @await RenderSectionAsync("styles", required: false)
     <title>@ViewBag.Title</title>
 </head>
 <body>
@@ -38,25 +43,39 @@
 
     <div class="container-fluid pt-3">
         <div>
-            <div class="row">
-                @if (TempData["message"] != null)
-                {
+            @if (TempData["message"] != null)
+            {
+                <div class="row">
                     <div class="col alert @(TempData["messageClass"] ?? "alert-danger") ">
                         @TempData["message"]
                     </div>
-                }
-            </div>
-            <div id="headerToolbar" class="row justify-content-end m-3">
-                @await RenderSectionAsync("header_toolbar", required: false)
-            </div>
+                </div>
+            }
+            @if (IsSectionDefined("header_toolbar"))
+            {
+                <div id="headerToolbar" class="row justify-content-end m-3">
+                    @await RenderSectionAsync("header_toolbar", required: false)
+                </div>
+            }
         </div>
         <div class="row m-1 p-1">
-            <div class="col-md-10 offset-md-1">
+            
+            <div class="col-md-10 offset-md-1" id="main">
                 @RenderBody()
             </div>
+
+            @if (IsSectionDefined("expanding_sidebar"))
+            {
+                <div class="col" id="expanding_sidebar">
+                    <aside>
+                        @await RenderSectionAsync("expanding_sidebar", required: false)
+                    </aside>
+                </div>
+            }
         </div>
     </div>
-    @RenderSection("script", required: false)
+
     <script src="~/source/basefunctions.js"></script>
+    @await RenderSectionAsync("script", required: false)
 </body>
 </html>

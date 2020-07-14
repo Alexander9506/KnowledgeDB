@@ -15,10 +15,35 @@
 @section header_toolbar{
     <a image="Save" id="saveButton">Save</a>
     <a image="Close" asp-action="List" asp-controller="Article">Close</a>
+    <a image="FileExplorer" onclick="toggleFileExplorer()">File Explorer</a>
 }
 
 @section expanding_sidebar{
-    <h1>Look at me i'm fabulous</h1>
+    @*File Explorer*@
+    <div id="file-explorer" class="container d-none">
+        <div class="form-group row m-0">
+            <input id="file-explorer-search" class="form-control col-md-9" type="search" name="search" placeholder="Search" aria-label="Search" autocomplete="off" />
+            <input id="file-explorer-add-file" multiple type="file" class="d-none" />
+
+            <div class="col-md-3 justify-content-around">
+                <button type="button" image="New" image-classes="p-1" class="btn btn-outline-secondary ml-1" onclick="document.getElementById('file-explorer-add-file').click()">Add File</button>
+                <button type="button" image="Sync" image-classes="p-1" class="btn btn-outline-success ml-1" onclick="fileExplorer.loadServerFiles();">Reload</button>
+            </div>
+        </div>
+
+        <div id="file-explorer-settings" class="row m-0 my-2">
+            <span class="text-black-50 col">Settings</span>
+            <div class="custom-control custom-switch col">
+                <input type="checkbox" class="custom-control-input" id="file-explorer-cbox-preview-images">
+                <label class="custom-control-label" for="file-explorer-cbox-preview-images">Show preview images</label>
+            </div>
+        </div>
+
+        <div>
+            <ul id="file-explorer-files" class="list-group">
+            </ul>
+        </div>
+    </div>
 }
 
 <h2>EDIT ARTICLE</h2>
@@ -57,6 +82,10 @@
 </form>
 
 @section script{
+    <script src="~/source/GUICreation.js"></script>
+    <script src="~/source/FileExplorer.js"></script>
+
+
     <script src="~/lib/simplemde/simplemde.min.js"></script>
     <script>
         var simplemde = new SimpleMDE({
@@ -198,7 +227,40 @@
             return tagList;
         }
 
-        scaleMainContent("col-md-8");
+        function toggleFileExplorer() {
+            //Expand sidebar to fit the FileExplorer
+            toggleSideBarExpansion();
+            toggleAddFileExplorer();
+        }
+
+        let fileExplorer = null;
+        function toggleAddFileExplorer() {
+            let fileExplorerElement = document.getElementById("file-explorer");
+
+            if (fileExplorerElement.classList.contains("d-none")) {
+                initFileExplorer();
+            } else {
+                fileExplorer = null;
+            }
+            fileExplorerElement.classList.toggle("d-none");
+        }
+
+        function initFileExplorer() {
+                fileExplorer = new FileExplorer('file-explorer');
+
+                fileExplorer.ImageUrl = "@Url.Action("GetFiles", "File")";
+                fileExplorer.DeleteFileUrl = "@Url.Action("DeleteFile", "File")";
+                fileExplorer.UploadUrl = "@Url.Action("UploadFiles", "File")";
+
+                fileExplorer.CreatePreviewImageURL = (file) => {
+                    if ('URL' in file) {
+                        return file.URL + "?width=80&height=80&keepRatio=true&imbedInBackground=true";
+                    } else {
+                        return ""
+                    }
+                }
+                fileExplorer.loadServerFiles();
+        }
 
     </script>
 }

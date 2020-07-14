@@ -6,6 +6,7 @@
       "Save": "fas fa-save",
       "Sync": "fas fa-sync",
       "New": "fas fa-plus",
+      "FileExplorer": "fas fa-folder",
       "Delete": {
         "Image": "fas fa-trash",
         "Button": "confirm-delete-dialog"

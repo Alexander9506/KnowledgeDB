@@ -95,3 +95,31 @@ function scaleMainContent(colSize) {
 
     main.classList.add(colSize);
 }
+
+
+function toggleSideBarExpansion(dessiredShrinkedClass, dessiredDefaultClass) {
+    let shrinkedClass = "col-md-8";
+    let defaultClass = "col-md-10";
+
+    let main = document.getElementById("main");
+
+    if (dessiredShrinkedClass != null) {
+        shrinkedClass = dessiredShrinkedClass;
+    }
+
+    if (dessiredDefaultClass != null) {
+        defaultClass = dessiredDefaultClass;
+    }
+
+    if (main == null) {
+        return
+    }
+
+    if (main.classList.contains("shrinked")) {
+        scaleMainContent(defaultClass);
+    } else {
+        scaleMainContent(shrinkedClass);
+    }
+
+    main.classList.toggle("shrinked");
+}

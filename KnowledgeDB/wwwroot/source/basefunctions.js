@@ -3,8 +3,6 @@
 for (var i = 0; i < deleteConfirmDialogButtons.length; i++) {
     deleteConfirmDialogButtons[i].addEventListener("click", function (event) {
         event.preventDefault();
-        console.log(this.getAttribute("href"));
-        console.log(this.dataset.question);
         var result = confirm(this.dataset.question);
 
         if (result) {
@@ -122,4 +120,6 @@ function toggleSideBarExpansion(dessiredShrinkedClass, dessiredDefaultClass) {
     }
 
     main.classList.toggle("shrinked");
+
+    
 }

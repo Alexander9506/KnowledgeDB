@@ -13,19 +13,19 @@
 }
 
 @section header_toolbar{
-    <a image="Save" id="saveButton">Save</a>
-    <a image="Close" asp-action="List" asp-controller="Article">Close</a>
-    <a image="FileExplorer" onclick="toggleFileExplorer()">File Explorer</a>
+    <a image="Save" id="saveButton" class="text-primary">Save</a>
+    <a image="FileExplorer" onclick="toggleFileExplorer()" class="text-primary">File Explorer</a>
+    <a image="Close" asp-action="List" asp-controller="Article" class="text-primary">Close</a>
 }
 
 @section expanding_sidebar{
     @*File Explorer*@
     <div id="file-explorer" class="container d-none">
-        <div class="form-group row m-0">
-            <input id="file-explorer-search" class="form-control col-md-9" type="search" name="search" placeholder="Search" aria-label="Search" autocomplete="off" />
-            <input id="file-explorer-add-file" multiple type="file" class="d-none" />
-
-            <div class="col-md-3 justify-content-around">
+        <div id="file-explorer-header" class="form-group row m-0 justify-content-between">
+            <input id="file-explorer-search" class="form-control flex-grow-1 w-auto mr-2" type="search" name="search" placeholder="Search" aria-label="Search" autocomplete="off" />
+            
+            <div>
+                <input id="file-explorer-add-file" multiple type="file" class="d-none" />
                 <button type="button" image="New" image-classes="p-1" class="btn btn-outline-secondary ml-1" onclick="document.getElementById('file-explorer-add-file').click()">Add File</button>
                 <button type="button" image="Sync" image-classes="p-1" class="btn btn-outline-success ml-1" onclick="fileExplorer.loadServerFiles();">Reload</button>
             </div>
@@ -68,6 +68,10 @@
     <div class="form-group">
         <label>Tags</label>
         <input class="form-control" type="text" id="articleTags" value="@tagListString" />
+    </div>
+    <div class="form-group">
+        <label asp-for="TeaserImagePath"></label>
+        <input class="form-control" asp-for="TeaserImagePath" />
     </div>
 
     <div class="form-group">
@@ -230,7 +234,16 @@
         function toggleFileExplorer() {
             //Expand sidebar to fit the FileExplorer
             toggleSideBarExpansion();
+            toggleOffset();
+            
             toggleAddFileExplorer();
+        }
+
+        //TODO: improve! must be cleaner and generally useable
+        function toggleOffset() {
+            let main = document.getElementById("main");
+
+            main.classList.toggle("offset-xl-1")
         }
 
         let fileExplorer = null;
@@ -261,7 +274,6 @@
                 }
                 fileExplorer.loadServerFiles();
         }
-
     </script>
 }
 

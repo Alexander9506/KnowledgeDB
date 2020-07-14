@@ -7,7 +7,7 @@ namespace KnowledgeDB.Middleware
     {
         public static IApplicationBuilder UseScaledImageMiddleware(this IApplicationBuilder builder)
         {
-            return builder.UseMiddleware<RequestScaledImageMiddleware>();
+            return builder.UseMiddleware<RequestTransformedImageMiddleware>();
         }
     }
 }

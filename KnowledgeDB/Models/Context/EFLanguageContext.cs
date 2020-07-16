@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Configuration;
 
-namespace KnowledgeDB.Models.Repositories.Language
+namespace KnowledgeDB.Models.Context
 {
     public class EFLanguageContext : DbContext
     {

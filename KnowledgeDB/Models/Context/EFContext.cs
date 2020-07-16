@@ -5,12 +5,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace KnowledgeDB.Models.Repositories
+namespace KnowledgeDB.Models.Context
 {
     public class EFContext : DbContext
     {
         private IConfiguration configuration;
-        
+
         public DbSet<Article> Articles { get; set; }
         public DbSet<ArticleTag> ArticleTags { get; set; }
 

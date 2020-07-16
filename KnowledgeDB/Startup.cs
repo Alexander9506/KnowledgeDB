@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using KnowledgeDB.Middleware.ImageTransform;
 using KnowledgeDB.Middleware.ImageTransform.AddIns;
+using KnowledgeDB.Models.Context;
 using KnowledgeDB.Models.Repositories;
 using KnowledgeDB.Models.Repositories.Language;
 using Microsoft.AspNetCore.Builder;
@@ -23,7 +24,7 @@ namespace KnowledgeDB
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<Models.Repositories.EFContext>();
+            services.AddDbContext<EFContext>();
             services.AddDbContext<EFLanguageContext>(options => options.UseNpgsql(configuration.GetConnectionString("LanguageDatabase")));
 
             services.AddRequestTransformedImageOptions(options => options.AddIns = new List<ITransformImageAddIn>() { new ScaleImageAddIn() });

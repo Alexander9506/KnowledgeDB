@@ -129,5 +129,10 @@ namespace KnowledgeDB.Middleware.ImageTransform.AddIns
 
             return destImage;
         }
+
+        public void PreImageLoad(ImageRequestContext context)
+        {
+            
+        }
     }
 }

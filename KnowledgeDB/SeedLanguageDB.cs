@@ -1,5 +1,5 @@
 ﻿using KnowledgeDB.Models;
-using KnowledgeDB.Models.Repositories.Language;
+using KnowledgeDB.Models.Context;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace KnowledgeDB
 {
- /// <summary>
- /// Seeds the LanguageDB
- /// </summary>
+    /// <summary>
+    /// Seeds the LanguageDB
+    /// </summary>
     public static class SeedLanguageDB
     {
         public static void EnsurePopulated(IApplicationBuilder app)

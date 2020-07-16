@@ -1,5 +1,5 @@
 ﻿using KnowledgeDB.Models;
-using KnowledgeDB.Models.Repositories;
+using KnowledgeDB.Models.Context;
 using KnowledgeDB.Models.Repositories.Language;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;

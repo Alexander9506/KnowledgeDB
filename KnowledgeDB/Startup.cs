@@ -1,17 +1,13 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using KnowledgeDB.Middleware;
+using KnowledgeDB.Middleware.ImageTransform;
+using KnowledgeDB.Middleware.ImageTransform.AddIns;
 using KnowledgeDB.Models.Repositories;
 using KnowledgeDB.Models.Repositories.Language;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 
 namespace KnowledgeDB
@@ -30,6 +26,7 @@ namespace KnowledgeDB
             services.AddDbContext<Models.Repositories.EFContext>();
             services.AddDbContext<EFLanguageContext>(options => options.UseNpgsql(configuration.GetConnectionString("LanguageDatabase")));
 
+            services.AddRequestTransformedImageOptions(options => options.AddIns = new List<ITransformImageAddIn>() { new ScaleImageAddIn() });
             services.AddTransient<IStringRetriever, StringRetrieverRepository>();
             services.AddTransient<IArticleRepository, ArticleRepository>();
             services.AddTransient<IFileRepository, FileRepository>();

@@ -35,7 +35,7 @@
 
     fileExplorer.CreatePreviewImageURL = (file) => {
         if ('URL' in file) {
-            return file.URL + "?width=80&height=80&keepRatio=true&imbedInBackground=true";
+            return file.URL + "?transform&width=80&height=80&keepRatio=true&imbedInBackground=true&fast=true";
         } else {
             return ""
         }

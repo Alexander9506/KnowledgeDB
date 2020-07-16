@@ -1,125 +1,14 @@
-﻿using KnowledgeDB.Development;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
-using Microsoft.Extensions.FileProviders;
-using Microsoft.VisualBasic.CompilerServices;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
-using System.IO;
-using System.Linq;
-using System.Numerics;
-using System.Threading.Tasks;
 
 
-namespace KnowledgeDB.Middleware
+namespace KnowledgeDB.Middleware.ImageTransform.AddIns
 {
-    public class RequestTransformedImageMiddleware
-    {
-        private const string REQUEST_TRANSFORMATION_KEY = "transform";
-
-        private readonly RequestDelegate _next;
-        private IWebHostEnvironment _env;
-
-        private IList<TransformImageAddIn> AddIns = new List<TransformImageAddIn>();
-
-        public RequestTransformedImageMiddleware(RequestDelegate next, IWebHostEnvironment env)
-        {
-            _next = next;
-            _env = env;
-        }
-
-        public async Task InvokeAsync(HttpContext context)
-        {
-            var query = context.Request.Query;
-            if (query.ContainsKey(REQUEST_TRANSFORMATION_KEY))
-            {
-                string imagePath = context.Request.Path;
-                IFileProvider fileProvider = _env.WebRootFileProvider;
-                IFileInfo fileInfo = fileProvider.GetFileInfo(imagePath);
-                if (fileInfo.Exists)
-                {
-                    Image i = Image.FromStream(fileInfo.CreateReadStream());
-
-                    OnImageLoaded(i);
-
-                    Bitmap transformedImage = OnTransformImage(i);
-
-                    OnImageTransformed();
-
-                    MemoryStream memStream;
-                    using (memStream = new MemoryStream())
-                    {
-                        transformedImage.Save(memStream, ImageFormat.Png);
-                        memStream.Seek(0, SeekOrigin.Begin);//Set stream to begin so the complete mem stream is copied
-
-                        await memStream.CopyToAsync(context.Response.Body);
-                    }
-                    return;
-                }
-                else
-                {
-                    //Bad Request                
-                    context.Response.StatusCode = 400;
-                    await context.Response.WriteAsync("Image not available");
-                    return;
-                }
-            }
-
-            await _next(context);
-        }
-
-        private void OnImageTransformed()
-        {
-            foreach (var addInn in AddIns)
-            {
-                addInn.ImageTransformed();
-            }
-        }
-
-        private Bitmap OnTransformImage(Bitmap bitmap, ImageRequestContext context)
-        {
-            Bitmap last = bitmap;
-            foreach (var addInn in AddIns)
-            {
-                last = addInn.TransformImage(last, context);
-            }
-            return last;
-        }
-
-        private void OnImageLoaded(Bitmap bitmap)
-        {
-            foreach (var addInn in AddIns)
-            {
-                addInn.ImageLoaded(bitmap);
-            }
-        }
-    }
-
-
-    public interface TransformImageAddIn
-    {
-        public void PreImageLoad();
-        public void ImageLoaded(Bitmap bitmap);
-
-        public Bitmap TransformImage(Bitmap bitmap, ImageRequestContext context);
-        public void ImageTransformed();
-    }
-
-
-    public class ImageRequestContext
-    {
-        public IFileInfo FileInfo { get; set; }
-        public Dictionary<String,String> Attributes { get; set; }
-         
-    }
-
-    public class ScaleImageAddIn : TransformImageAddIn
+    public class ScaleImageAddIn : ITransformImageAddIn
     {
         private const string QUERY_KEY_KEEP_RATIO = "keepRatio";
         private const string QUERY_KEY_IMBED_IN_BACKGROUND = "imbedInBackground";
@@ -130,17 +19,17 @@ namespace KnowledgeDB.Middleware
 
         public void ImageLoaded(Bitmap bitmap)
         {
-            throw new NotImplementedException();
+
         }
 
         public void ImageTransformed()
         {
-            throw new NotImplementedException();
+
         }
 
         public void PreImageLoad()
         {
-            throw new NotImplementedException();
+
         }
 
         public Bitmap TransformImage(Bitmap bitmap, ImageRequestContext context)
@@ -169,11 +58,12 @@ namespace KnowledgeDB.Middleware
                 try
                 {
                     var converter = TypeDescriptor.GetConverter(typeof(T));
-                    if(converter != null)
+                    if (converter != null)
                     {
-                        result = (T) converter.ConvertFromString(dict[key]);
+                        result = (T)converter.ConvertFromString(dict[key]);
                     }
-                }catch(Exception e)
+                }
+                catch (Exception e)
                 {
                     //TODO:Log
                 }

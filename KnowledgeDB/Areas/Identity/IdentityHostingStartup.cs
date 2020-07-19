@@ -16,9 +16,8 @@ namespace KnowledgeDB.Areas.Identity
         public void Configure(IWebHostBuilder builder)
         {
             builder.ConfigureServices((context, services) => {
-                services.AddDbContext<IdentityContext>(options =>
-                    options.UseSqlServer(
-                        context.Configuration.GetConnectionString("IdentityContextConnection")));
+                services.AddDbContext<IdentityContext>(options => options.UseNpgsql(
+                        context.Configuration.GetConnectionString("IdentityDatabase")));
 
                 services.AddDefaultIdentity<KnowledgeDBUser>(options => options.SignIn.RequireConfirmedAccount = true)
                     .AddEntityFrameworkStores<IdentityContext>();

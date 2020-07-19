@@ -42,15 +42,26 @@ namespace KnowledgeDB
                 app.UseDeveloperExceptionPage();
                 app.UseStatusCodePages();
             }
+            else
+            {
+                //app.UseHsts();
+            }
+
+            //app.UseHttpsRedirection();
             app.UseScaledImageMiddleware();
             app.UseStaticFiles();
+            
             app.UseRouting();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapRazorPages();
             });
 
             SeedMainDB.EnsurePopulated(app);

@@ -1,6 +1,7 @@
 ﻿using KnowledgeDB.Models;
 using KnowledgeDB.Models.Repositories;
 using KnowledgeDB.Models.ViewModels.File;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +14,7 @@ using System.Threading.Tasks;
 
 namespace KnowledgeDB.Controllers
 {
+    [Authorize]
     public class FileController : Controller
     {
         private IFileRepository fileRepository;
@@ -87,7 +89,7 @@ namespace KnowledgeDB.Controllers
                     //New random Filename
                     string originalFileExtension = Path.GetExtension(formFile.FileName).Replace(".", string.Empty);
                     string newFileName = Path.GetRandomFileName();
-                    if (allowedFileExtensions.Contains(originalFileExtension))
+                    if (allowedFileExtensions.Contains(originalFileExtension.ToLower()))
                     {
                         if (newFileName.Contains("."))
                         {

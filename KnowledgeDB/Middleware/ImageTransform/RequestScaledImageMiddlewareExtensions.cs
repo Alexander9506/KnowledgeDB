@@ -16,7 +16,7 @@ namespace KnowledgeDB.Middleware.ImageTransform
 
             return service;
         }
-        public static IApplicationBuilder UseScaledImageMiddleware(this IApplicationBuilder builder, Action<RequestLocalizationOptions> options = default)
+        public static IApplicationBuilder UseTransformedImageMiddleware(this IApplicationBuilder builder, Action<RequestLocalizationOptions> options = default)
         {
             return builder.UseMiddleware<RequestTransformedImageMiddleware>();
         }

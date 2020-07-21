@@ -1,6 +1,7 @@
 ﻿using KnowledgeDB.Development;
 using KnowledgeDB.Models;
 using KnowledgeDB.Models.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Internal;
 using System;
@@ -10,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace KnowledgeDB.Controllers
 {
+    [Authorize]
     public class ArticleEditController : Controller
     {
         private IArticleRepository articleRepository;

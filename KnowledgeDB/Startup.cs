@@ -32,6 +32,7 @@ namespace KnowledgeDB
             services.AddTransient<IArticleRepository, ArticleRepository>();
             services.AddTransient<IFileRepository, FileRepository>();
 
+
             services.AddMvc();
         }
 
@@ -48,7 +49,7 @@ namespace KnowledgeDB
             }
 
             //app.UseHttpsRedirection();
-            app.UseScaledImageMiddleware();
+            app.UseTransformedImageMiddleware();
             app.UseStaticFiles();
             
             app.UseRouting();

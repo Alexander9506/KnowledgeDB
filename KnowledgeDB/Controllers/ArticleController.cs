@@ -13,8 +13,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Hosting;
-using System.IO;
-using AngleSharp.Io.Dom;
 
 namespace KnowledgeDB.Controllers
 {

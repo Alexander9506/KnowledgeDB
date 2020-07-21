@@ -18,7 +18,7 @@
         }
 
     </style>
-    @await RenderSectionAsync("styles", required: false)
+    @await RenderSectionAsync("Styles", required: false)
     <title>@ViewBag.Title</title>
 </head>
 <body>
@@ -29,11 +29,8 @@
         </button>
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav mr-auto">
-                @*<li class="nav-item active">
-                        <a class="nav-link" asp-action="List" asp-controller="Article" >Home<span class="sr-only">(current)</span></a>
-                    </li>*@
-            </ul>
+            @await Html.PartialAsync("_LoginPartial")
+
             <form class="form-inline my-2 my-lg-0" asp-controller="Article" asp-action="Search" method="get">
                 <input class="form-control mr-sm-2" type="search" name="search" placeholder="Search" aria-label="Search" autocomplete="off">
                 <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
@@ -76,6 +73,6 @@
     </div>
 
     <script src="~/source/basefunctions.js"></script>
-    @await RenderSectionAsync("script", required: false)
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

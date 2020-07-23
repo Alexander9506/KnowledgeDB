@@ -210,13 +210,17 @@ class FileExplorer {
 
             if (self.UploadUrl != null) {
                 let formData = self.createUploadFormData([file]);
-                console.log(JSON.stringify(formData));
                 UploadFormData(formData, self.UploadUrl, function (success) {
-                    ChangeImage(newImage, "fa fa-check m-3");
-
-                    //ChangeUpload State
-                    file.uploadState = self.UploadState_Uploaded;
-
+                    if (success) {
+                        ChangeImage(newImage, "fa fa-check m-3");
+                        
+                        //ChangeUpload State
+                        file.uploadState = self.UploadState_Uploaded;
+                    } else {
+                        file.uploadState = self.UploadState_Added;
+                        ChangeImage(newImage, "fa fa-exclamation-triangle m-3");
+                    }
+                    
                     //switchout check with copy url Button
                     setTimeout(
                         function () {

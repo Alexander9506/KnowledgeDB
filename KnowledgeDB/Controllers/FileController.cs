@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace KnowledgeDB.Controllers
 {
-    
+    [Authorize]
     public class FileController : Controller
     {
         private readonly IFileRepository fileRepository;
@@ -74,7 +74,6 @@ namespace KnowledgeDB.Controllers
             if (files.Any())
             {
                 long size = formFiles.Sum(f => f.Length);
-
                 IEnumerable<FileContainer> savedFiles = await _fileHelper.SaveFromFormFiles(formFiles);
                 if (savedFiles.Count() == files.Count())
                 {

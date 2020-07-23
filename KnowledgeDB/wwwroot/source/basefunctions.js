@@ -36,10 +36,8 @@ async function UploadFormData(formData, action, onUploadFinished) {
             body: formData
         });
 
-        if (response.ok) {
-            if (onUploadFinished != null) {
-                onUploadFinished(true);
-            }
+        if (onUploadFinished != null) {
+            onUploadFinished(response.ok);
         }
     } catch (error) {
         console.error('Error', error);

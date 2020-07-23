@@ -6,8 +6,8 @@ using Microsoft.AspNetCore.Identity;
 
 namespace KnowledgeDB.Areas.Identity.Data
 {
-    // Add profile data for application users by adding properties to the KnowledgeDBUser class
     public class KnowledgeDBUser : IdentityUser
     {
+        public string ProfilePicturePath { get; set; }
     }
 }

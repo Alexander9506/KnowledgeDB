@@ -1,5 +1,4 @@
-﻿
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.TagHelpers;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.Extensions.Configuration;
@@ -9,7 +8,7 @@ using System.Linq;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 
-namespace KnowledgeDB.Infrastructure
+namespace KnowledgeDB.Infrastructure.TagHelpers
 {
     [HtmlTargetElement(Attributes = "image")]
     public class AnchorImageTagHelper : TagHelper
@@ -34,7 +33,7 @@ namespace KnowledgeDB.Infrastructure
             SetButtonTitle(TextAsTitle, ButtonText, output, imageTag);
 
             //Add Configured classes
-            Dictionary<string,string> defaultClasses = GetConfiguredDefaultClasses();
+            Dictionary<string, string> defaultClasses = GetConfiguredDefaultClasses();
 
             //Override configured classes if declared
             SetInDictionary(defaultClasses, "Button", ButtonClasses);
@@ -53,16 +52,16 @@ namespace KnowledgeDB.Infrastructure
                 AddClassesToTag(imageTag, classes["Image"]);
             }
 
-            output.Attributes.Add(new TagHelperAttribute("type","button"));
+            output.Attributes.Add(new TagHelperAttribute("type", "button"));
             output.Content.AppendHtml(imageTag);
-           
+
             return Task.CompletedTask;
         }
 
         private void SetInDictionary(Dictionary<string, string> result, string key, string value)
         {
             //Abort if value is empty
-            if (String.IsNullOrWhiteSpace(value))
+            if (string.IsNullOrWhiteSpace(value))
             {
                 return;
             }
@@ -71,7 +70,7 @@ namespace KnowledgeDB.Infrastructure
 
         private void AddClassesToTag(TagBuilder tag, string classesString)
         {
-            if (!String.IsNullOrWhiteSpace(classesString))
+            if (!string.IsNullOrWhiteSpace(classesString))
             {
                 tag.AddCssClass(classesString);
             }
@@ -79,7 +78,7 @@ namespace KnowledgeDB.Infrastructure
 
         private void AddClassesToOutput(TagHelperOutput output, string classesString)
         {
-            if (!String.IsNullOrWhiteSpace(classesString))
+            if (!string.IsNullOrWhiteSpace(classesString))
             {
                 foreach (var className in classesString.Split(' '))
                 {
@@ -106,7 +105,8 @@ namespace KnowledgeDB.Infrastructure
             return childContext.GetContent();
         }
 
-        private Dictionary<string,string> GetConfiguredClasses (string keyword){
+        private Dictionary<string, string> GetConfiguredClasses(string keyword)
+        {
             Dictionary<string, string> result = new Dictionary<string, string>();
 
             if (!string.IsNullOrWhiteSpace(keyword))
@@ -149,14 +149,14 @@ namespace KnowledgeDB.Infrastructure
         private void AddToDictionary(Dictionary<string, string> result, string key, string value)
         {
             //Abort if value is empty
-            if (String.IsNullOrWhiteSpace(value))
+            if (string.IsNullOrWhiteSpace(value))
             {
                 return;
             }
 
             if (result.ContainsKey(key))
             {
-                result[key] = string.Join(" ", new String[] { result[key], value });
+                result[key] = string.Join(" ", new string[] { result[key], value });
             }
             else
             {

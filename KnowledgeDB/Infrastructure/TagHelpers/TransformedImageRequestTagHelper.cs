@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Razor.TagHelpers;
 using System;
 using System.Threading.Tasks;
 
-namespace KnowledgeDB.Infrastructure
+namespace KnowledgeDB.Infrastructure.TagHelpers
 {
     [HtmlTargetElement(Attributes = "image-path-on-server")]
     public class TransformedImageRequestTagHelper : TagHelper

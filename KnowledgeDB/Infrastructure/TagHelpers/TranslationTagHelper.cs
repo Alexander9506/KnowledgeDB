@@ -7,7 +7,7 @@ using Microsoft.Extensions.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace KnowledgeDB.Infrastructure
+namespace KnowledgeDB.Infrastructure.TagHelpers
 {
     [HtmlTargetElement("span", Attributes = "translate-key")]
     public class TranslationTagHelper : TagHelper
@@ -54,7 +54,7 @@ namespace KnowledgeDB.Infrastructure
                 lp = stringRetriever.LanguagePacks.FirstOrDefault(lp => lp.EnglishLanguageName == language);
             }
 
-            if(lp == null)
+            if (lp == null)
             {
                 string configuredLanguage = configuration.GetSection("Language").GetSection("Default").Value;
                 lp = stringRetriever.LanguagePacks.FirstOrDefault(lp => lp.EnglishLanguageName == configuredLanguage);

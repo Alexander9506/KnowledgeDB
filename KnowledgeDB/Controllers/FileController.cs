@@ -1,4 +1,5 @@
-﻿using KnowledgeDB.Models;
+﻿using KnowledgeDB.Infrastructure;
+using KnowledgeDB.Models;
 using KnowledgeDB.Models.Repositories;
 using KnowledgeDB.Models.ViewModels.File;
 using Microsoft.AspNetCore.Authorization;
@@ -14,18 +15,20 @@ using System.Threading.Tasks;
 
 namespace KnowledgeDB.Controllers
 {
-    [Authorize]
+    
     public class FileController : Controller
     {
-        private IFileRepository fileRepository;
-        private IWebHostEnvironment environment;
-        private IConfiguration configuration;
+        private readonly IFileRepository fileRepository;
+        private readonly IWebHostEnvironment environment;
+        private readonly IConfiguration _configuration;
+        private readonly IFileHelper _fileHelper;
 
-        public FileController(IFileRepository fileRepository, IWebHostEnvironment environment, IConfiguration configuration)
+        public FileController(IFileRepository fileRepository, IWebHostEnvironment environment, IConfiguration configuration, IFileHelper fileHelper)
         {
             this.fileRepository = fileRepository;
             this.environment = environment;
-            this.configuration = configuration;
+            this._configuration = configuration;
+            this._fileHelper = fileHelper;
         }
 
         [HttpPost]
@@ -35,18 +38,9 @@ namespace KnowledgeDB.Controllers
 
             if(container != null)
             {
-                string localFilePath = container.FilePathFull;
-                if(await fileRepository.DeleteFileContainer(container))
+                if (await _fileHelper.DeleteFileAsync(container))
                 {
-                    try
-                    {
-                        System.IO.File.Delete(localFilePath);
-                        return Ok();
-                    }
-                    catch(Exception e)
-                    {
-                        //TODO: Log
-                    }
+                    return Ok();
                 }
             }
             return BadRequest();
@@ -76,51 +70,22 @@ namespace KnowledgeDB.Controllers
         [HttpPost]
         public async Task<IActionResult> UploadFiles(List<FileViewModel> files)
         {
+            IEnumerable<IFormFile> formFiles = files.Select(f => f.FormFile);
             if (files.Any())
             {
-                long size = files.Sum(f => f.FormFile.Length);
-                String basePath = Path.Combine(environment.WebRootPath, configuration.GetValue<String>("ImagePath"));
-                String[] allowedFileExtensions = configuration.GetSection("AllowedFileExtensions").Get<String[]>();
+                long size = formFiles.Sum(f => f.Length);
 
-                foreach (var fileViewModel in files)
+                IEnumerable<FileContainer> savedFiles = await _fileHelper.SaveFromFormFiles(formFiles);
+                if (savedFiles.Count() == files.Count())
                 {
-                    IFormFile formFile = fileViewModel.FormFile;
-
-                    //New random Filename
-                    string originalFileExtension = Path.GetExtension(formFile.FileName).Replace(".", string.Empty);
-                    string newFileName = Path.GetRandomFileName();
-                    if (allowedFileExtensions.Contains(originalFileExtension.ToLower()))
-                    {
-                        if (newFileName.Contains("."))
-                        {
-                            newFileName = newFileName.Substring(0, newFileName.IndexOf(".") - 1);
-                            newFileName += "." + originalFileExtension;
-                        }
-                    }
-
-                    //Create and Save FileContainer
-                    FileContainer container = FileContainerFactory.CreateFileContainer(formFile, basePath, newFileName);
-                    container.GuiId = fileViewModel.GUIID;
-
-                    if (container != null)
-                    {
-                        try {
-                            using (var stream = System.IO.File.Create(container.FilePathFull))
-                            {
-                                await formFile.CopyToAsync(stream);
-                            }
-                            await fileRepository.SaveFileContainer(container);
-                            
-                            return Ok(new { count = files.Count, size });
-                        } catch (Exception e) {
-                            //TODO: Logging
-                        }
-                    }
+                    return Ok(new { count = formFiles.Count(), size });
+                }
+                else
+                {
+                    //TODO: Error => not all files could be uploaded
                 }
             }
             return BadRequest();
         }
-
-        
     }
 }

@@ -9,7 +9,7 @@ namespace KnowledgeDB.Models.Repositories
     {
         IQueryable<FileContainer> FileContainers { get;}
 
-        Task<bool> SaveFileContainer(FileContainer container);
+        Task<FileContainer> SaveFileContainer(FileContainer container);
         Task<bool> DeleteFileContainer(FileContainer container);
     }
 }

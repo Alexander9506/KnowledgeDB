@@ -6,6 +6,9 @@
       "Save": "fas fa-save",
       "Sync": "fas fa-sync",
       "New": "fas fa-plus",
+      "SignIn": "fas fa-sign-in-alt",
+      "SignOut": "fas fa-sign-out-alt",
+      "NewUser": "fas fa-user-plus",
       "FileExplorer": "fas fa-folder",
       "Delete": {
         "Image": "fas fa-trash",

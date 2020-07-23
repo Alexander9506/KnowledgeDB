@@ -38,7 +38,11 @@ namespace KnowledgeDB.Middleware.ImageTransform
                 if (fileInfo.Exists)
                 {
                     OnPreImageLoad(fileInfo);
-                    Bitmap bitmap = (Bitmap)Image.FromStream(fileInfo.CreateReadStream());
+                    Bitmap bitmap = null;
+                    using (var stream = fileInfo.CreateReadStream())
+                    {
+                         bitmap = (Bitmap)Image.FromStream(stream);
+                    }
 
                     OnImageLoaded(bitmap);
 

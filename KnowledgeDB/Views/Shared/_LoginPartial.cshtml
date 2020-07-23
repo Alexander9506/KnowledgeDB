@@ -3,26 +3,40 @@
 
 @inject SignInManager<KnowledgeDBUser> SignInManager
 @inject UserManager<KnowledgeDBUser> UserManager
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment _environment
+@using System.IO;
 
+@{
+    var userResult = UserManager.GetUserAsync(User).Result;
+}
 
 @if (SignInManager.IsSignedIn(User))
 {
-    <div>
-        <img src="" alt="User Image" />
+    <ul class="navbar-nav">
+        @if (!String.IsNullOrWhiteSpace(userResult.ProfilePicturePath))
+        {
+            <li class="nav-item">
+                <img style="width:40px;height:40px;object-fit:cover;border-radius:30px" image-path-on-server="@System.IO.Path.GetRelativePath(_environment.WebRootPath, userResult.ProfilePicturePath).Replace("\\", "/")" width="60" height="60" imbed-in-background="false" keep-ratio="true" fast="true" />
+            </li>
+        }
+        <li class="nav-item">
+            <a id="manage" class="nav-link" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @UserManager.GetUserName(User)!</a>
+        </li>
+    </ul>
 
-        <a id="manage" class="nav-link" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @UserManager.GetUserName(User)!</a>
-
-        <form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-            <button id="logout" type="submit" class="nav-link btn btn-link text-dark">Logout</button>
-        </form>
-    </div>
+    <form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+        <button image="SignOut" id="logout" type="submit" class="nav-link btn btn-link text-dark">Logout</button>
+    </form>
 }
 else
 {
-    <div>
-        <a class="nav-link btn btn-secondary" id="register" asp-area="Identity" asp-page="/Account/Register">Register</a>
-        <a class="nav-link  btn btn-primary" id="login" asp-area="Identity" asp-page="/Account/Login">Login</a>
-
-    </div>
+    <ul class="navbar-nav">
+        <li class="nav-item">
+            <a image="NewUser" image-classes="fa-1x" class="nav-link btn btn-outline-secondary mx-1" id="register" asp-area="Identity" asp-page="/Account/Register">Register</a>
+        </li>
+        <li class="nav-item">
+            <a image="SignIn" image-classes="fa-1x" class="nav-link btn btn-outline-primary mx-1" id="login" asp-area="Identity" asp-page="/Account/Login">Login</a>
+        </li>
+    </ul>
 }
 

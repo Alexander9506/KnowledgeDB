@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using KnowledgeDB.Infrastructure;
 using KnowledgeDB.Middleware.ImageTransform;
 using KnowledgeDB.Middleware.ImageTransform.AddIns;
 using KnowledgeDB.Models.Context;
@@ -31,7 +32,7 @@ namespace KnowledgeDB
             services.AddTransient<IStringRetriever, StringRetrieverRepository>();
             services.AddTransient<IArticleRepository, ArticleRepository>();
             services.AddTransient<IFileRepository, FileRepository>();
-
+            services.AddTransient<IFileHelper, FileHelper>();
 
             services.AddMvc();
         }

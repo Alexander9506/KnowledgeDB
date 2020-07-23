@@ -9,18 +9,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace KnowledgeDB.Infrastructure
+namespace KnowledgeDB.Infrastructure.TagHelpers
 {
-    [HtmlTargetElement("div", Attributes ="page-model")]
+    [HtmlTargetElement("div", Attributes = "page-model")]
     public class PageLinkTagHelper : TagHelper
     {
         private IUrlHelperFactory urlHelperFactory;
-        
+
         [ViewContext]
         [HtmlAttributeNotBound]
         public ViewContext ViewContext { get; set; }
 
-        public PaginationInfo PageModel { get; set;}
+        public PaginationInfo PageModel { get; set; }
         public string PageAction { get; set; }
         [HtmlAttributeName(DictionaryAttributePrefix = "page-url-")]
         public Dictionary<string, object> PageUrlValues { get; set; } = new Dictionary<string, object>();
@@ -39,7 +39,7 @@ namespace KnowledgeDB.Infrastructure
         {
             IUrlHelper helper = urlHelperFactory.GetUrlHelper(ViewContext);
             TagBuilder result = new TagBuilder("div");
-            for(int i = 1; i <= PageModel.TotalPages; i++)
+            for (int i = 1; i <= PageModel.TotalPages; i++)
             {
                 TagBuilder tag = new TagBuilder("a");
                 PageUrlValues["page"] = i;

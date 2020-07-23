@@ -35,19 +35,20 @@ namespace KnowledgeDB.Models.Repositories
             return false;
         }
 
-        public async Task<bool> SaveFileContainer(FileContainer container)
+        public async Task<FileContainer> SaveFileContainer(FileContainer container)
         {
             try
             {
                 context.Update(container);
-                await context.SaveChangesAsync();
+                if (await context.SaveChangesAsync() > 0)
+                {
+                    return container;
+                }
             }catch(Exception e)
             {
                 //TODO: Logging
-                return false;
             }
-            
-            return true;
+            return null;
         }
     }
 }

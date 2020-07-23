@@ -210,6 +210,7 @@ class FileExplorer {
 
             if (self.UploadUrl != null) {
                 let formData = self.createUploadFormData([file]);
+                console.log(JSON.stringify(formData));
                 UploadFormData(formData, self.UploadUrl, function (success) {
                     ChangeImage(newImage, "fa fa-check m-3");
 
@@ -322,7 +323,7 @@ class FileExplorer {
     }
 
     createUploadFormData(files) {
-        const formData = new FormData();
+        let formData = new FormData();
         for (var i = 0; i < files.length; i++) {
             //needed to supply multiple Objects from same type to asp.net controller
             formData.append("Files[" + i + "].FormFile", files[i].file);

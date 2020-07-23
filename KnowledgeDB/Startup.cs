@@ -50,6 +50,7 @@ namespace KnowledgeDB
             }
 
             //app.UseHttpsRedirection();
+            
             app.UseTransformedImageMiddleware();
             app.UseStaticFiles();
             

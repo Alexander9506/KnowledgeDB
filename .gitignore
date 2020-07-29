@@ -338,4 +338,7 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+
+# Exclude Folder (Userdata or automatically created Files)
 /KnowledgeDB/wwwroot/images/uploads
+/KnowledgeDB/wwwroot/js

@@ -18,12 +18,12 @@ function addButtonListener() : void {
         toggleFileExplorer();
     };
 
-    let reloadButton: HTMLButtonElement = document.getElementById("reloadFiles") as HTMLButtonElement;
-    reloadButton.onclick = function () {
-        if (fileExplorer) {
-            fileExplorer.refresh();
-        }
-    }
+    //let reloadButton: HTMLButtonElement = document.getElementById("reloadFiles") as HTMLButtonElement;
+    //reloadButton.onclick = function () {
+    //    if (fileExplorer) {
+    //        fileExplorer.refresh();
+    //    }
+    //}
 
 }
 
@@ -88,8 +88,11 @@ function toggleOffset() {
 
 
 
-function toggleAddFileExplorer() {
-    let fileExplorerElement = document.getElementById("file-explorer");
+function toggleAddFileExplorer() : void {
+    let fileExplorerElement :HTMLDivElement = document.getElementById("file-explorer") as HTMLDivElement;
+
+    //clear
+    fileExplorerElement.innerHTML = "";
 
     if (fileExplorerElement.classList.contains("d-none")) {
         initFileExplorer();
@@ -100,7 +103,7 @@ function toggleAddFileExplorer() {
 }
 
 function initFileExplorer() {
-    fileExplorer = new FileExplorer('file-explorer');
+    fileExplorer = new FileExplorer('file-explorer', true);
 
     fileExplorer.ImageUrl = (document.getElementById("ImageURL") as HTMLSpanElement).innerHTML;
     fileExplorer.DeleteFileURL = (document.getElementById("DeleteFileURL") as HTMLSpanElement).innerHTML;

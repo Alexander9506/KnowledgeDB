@@ -91,7 +91,8 @@ class FileContainer {
 export class FileExplorer {
     private ID_fileExplorer: string = 'file-explorer';
     private ID_fileExplorerSearch : string  = 'file-explorer-search' ;
-    private ID_fileExplorerAddFile: string = 'file-explorer-add-file';
+    private ID_fileExplorerBtnAddFile: string = 'file-explorer-add-file';
+    private ID_fileExplorerBtnReload: string = 'file-explorer-btn-reload';
     private ID_fileExplorerSettings: string = 'file-explorer-settings';
     private ID_fileExplorerCbxOnlyNewFiles: string = 'file-explorer-cbox-only-new-files';
     private ID_fileExplorerCbxPreviewImages: string = 'file-explorer-cbox-preview-images';
@@ -110,17 +111,124 @@ export class FileExplorer {
     private CSS_PreviewImage: string = "file-explorer-previewimage";
 
 
-    constructor(fileExplorerId: string) {
+    constructor(fileExplorerId: string, createGui? : boolean) {
         this.ID_fileExplorer = fileExplorerId;
 
         this._filter = new FileFilter();
         this._filter.fileType = "image";
 
+        if (createGui) {
+            this.createGUI();
+        }
+
         this.addListener();
     }
 
+    private createGUI(): void {
+
+        let mainDiv = document.getElementById(this.ID_fileExplorer);
+
+        if (mainDiv) {
+            mainDiv.className = "container d-none";
+
+            //Searchbar
+            let searchbar: HTMLDivElement = this.createHeader();
+
+            //Settings
+            let settingsbar: HTMLDivElement = this.createSettings();
+
+            //Filelist
+            let filesDiv = document.createElement("div");
+            let fileList = document.createElement("ul");
+            fileList.id = this.ID_fileExplorerFiles
+            fileList.className = "list-group";
+
+            filesDiv.appendChild(fileList);
+
+            mainDiv.appendChild(searchbar);
+            mainDiv.appendChild(settingsbar);
+            mainDiv.appendChild(filesDiv);
+
+        } else {
+            console.log("No FileExplorer-Container found")
+        }
+    }
+
+    private createSettings(): HTMLDivElement {
+        let self: FileExplorer = this;
+        let mainDiv: HTMLDivElement = document.createElement("div") as HTMLDivElement;
+        mainDiv.id = this.ID_fileExplorerSettings;
+        mainDiv.className = "row m-0 my-2";
+
+        let txtSettings = document.createElement("span");
+        txtSettings.innerHTML = "Settings";
+        txtSettings.className = "text-black-50 col";
+
+        let inputDiv: HTMLDivElement = document.createElement("div") as HTMLDivElement;
+        inputDiv.className = "custom-control custom-switch col";
+
+        let cbxPreviewImages = document.createElement("input");
+        cbxPreviewImages.type = "checkbox";
+        cbxPreviewImages.className = "custom-control-input";
+        cbxPreviewImages.id = this.ID_fileExplorerCbxPreviewImages;
+
+        let lblPreviewImages = document.createElement("label");
+        lblPreviewImages.className = "custom-control-label";
+        lblPreviewImages.htmlFor = this.ID_fileExplorerCbxPreviewImages;
+        lblPreviewImages.innerHTML = "Show preview images";
+
+        inputDiv.appendChild(cbxPreviewImages);
+        inputDiv.appendChild(lblPreviewImages);
+
+        mainDiv.appendChild(txtSettings);
+        mainDiv.appendChild(inputDiv);
+
+        return mainDiv;
+    }
+
+    private createHeader(): HTMLDivElement {
+        let self: FileExplorer = this;
+        let mainDiv: HTMLDivElement = document.createElement("div") as HTMLDivElement;
+        mainDiv.id = "file-explorer-header";
+        mainDiv.className = "form-group row m-0 justify-content-between";
+
+        let inpSearch = document.createElement("input");
+        inpSearch.id = self.ID_fileExplorerSearch;
+        inpSearch.className = "form-control flex-grow-1 w-auto mr-2";
+        inpSearch.type = "search";
+        inpSearch.name = "search";
+        inpSearch.placeholder = "Search";
+        inpSearch.autocomplete = "off";
+
+        let divFileButtons: HTMLDivElement = document.createElement("div") as HTMLDivElement;
+
+        let inpHiddenAddFile: HTMLInputElement = document.createElement("input") as HTMLInputElement;
+        inpHiddenAddFile.id = self.ID_fileExplorerBtnAddFile;
+        inpHiddenAddFile.style.display = "none";
+        inpHiddenAddFile.type = "file";
+        inpHiddenAddFile.setAttribute("multiple", "");
+
+        
+        let btnAddFile = GuiCreation.createImageButton("fas fa-plus", "btn btn-outline-secondary ml-1", "Add File");
+        btnAddFile.onclick = function () {
+            document.getElementById(self.ID_fileExplorerBtnAddFile).click();
+        }
+        
+        let btnRefresh = GuiCreation.createImageButton("fas fa-sync", "btn btn-outline-success ml-1", "Refresh");
+        btnRefresh.id = this.ID_fileExplorerBtnReload;
+
+        divFileButtons.appendChild(inpHiddenAddFile);
+        divFileButtons.appendChild(btnAddFile);
+        divFileButtons.appendChild(btnRefresh);
+
+        mainDiv.appendChild(inpSearch);
+        mainDiv.appendChild(divFileButtons);
+
+        return mainDiv;
+    }
+
     private addListener() : void {
-        const fileAddButton: HTMLInputElement = document.getElementById(this.ID_fileExplorerAddFile) as HTMLInputElement;
+        const fileAddButton: HTMLInputElement = document.getElementById(this.ID_fileExplorerBtnAddFile) as HTMLInputElement;
         const self : FileExplorer = this;
 
         //New file added listener

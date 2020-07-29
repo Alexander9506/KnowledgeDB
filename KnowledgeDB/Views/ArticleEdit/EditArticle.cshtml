@@ -21,28 +21,6 @@
 @section expanding_sidebar{
     @*File Explorer*@
     <div id="file-explorer" class="container d-none">
-        <div id="file-explorer-header" class="form-group row m-0 justify-content-between">
-            <input id="file-explorer-search" class="form-control flex-grow-1 w-auto mr-2" type="search" name="search" placeholder="Search" aria-label="Search" autocomplete="off" />
-            
-            <div>
-                <input id="file-explorer-add-file" multiple type="file" class="d-none" />
-                <button type="button" image="New" image-classes="p-1" class="btn btn-outline-secondary ml-1" onclick="document.getElementById('file-explorer-add-file').click()">Add File</button>
-                <button type="button" image="Sync" image-classes="p-1" class="btn btn-outline-success ml-1" id="reloadFiles">Reload</button>
-            </div>
-        </div>
-
-        <div id="file-explorer-settings" class="row m-0 my-2">
-            <span class="text-black-50 col">Settings</span>
-            <div class="custom-control custom-switch col">
-                <input type="checkbox" class="custom-control-input" id="file-explorer-cbox-preview-images">
-                <label class="custom-control-label" for="file-explorer-cbox-preview-images">Show preview images</label>
-            </div>
-        </div>
-
-        <div>
-            <ul id="file-explorer-files" class="list-group">
-            </ul>
-        </div>
     </div>
 }
 
@@ -90,13 +68,6 @@
 </form>
 
 @section Scripts{
-    @*<script src="~/source/GUICreation.js"></script>*@
-    @*<script src="~/source/FileExplorer.js"></script>*@
-
-    @*<script src="~/lib/simplemde/simplemde.min.js"></script>
-    <script>
-        
-    </script>*@
     <script type="module" src="~/js/Views/ArticleEdit/ArticleEdit.js"></script>
     <script src="~/lib/simplemde/simplemde.min.js"></script>
     <script>

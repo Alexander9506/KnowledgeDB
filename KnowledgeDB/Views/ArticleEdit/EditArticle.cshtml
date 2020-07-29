@@ -14,7 +14,7 @@
 
 @section header_toolbar{
     <a image="Save" id="saveButton" class="text-primary">Save</a>
-    <a image="FileExplorer" onclick="toggleFileExplorer()" class="text-primary">File Explorer</a>
+    <a image="FileExplorer" id="toggleFileExplorer" class="text-primary">File Explorer</a>
     <a image="Close" asp-action="List" asp-controller="Article" class="text-primary">Close</a>
 }
 
@@ -27,7 +27,7 @@
             <div>
                 <input id="file-explorer-add-file" multiple type="file" class="d-none" />
                 <button type="button" image="New" image-classes="p-1" class="btn btn-outline-secondary ml-1" onclick="document.getElementById('file-explorer-add-file').click()">Add File</button>
-                <button type="button" image="Sync" image-classes="p-1" class="btn btn-outline-success ml-1" onclick="fileExplorer.loadServerFiles();">Reload</button>
+                <button type="button" image="Sync" image-classes="p-1" class="btn btn-outline-success ml-1" id="reloadFiles">Reload</button>
             </div>
         </div>
 
@@ -45,6 +45,10 @@
         </div>
     </div>
 }
+
+<span id="ImageURL" style="display:none;">@Url.Action("GetFiles", "File")</span>
+<span id="DeleteFileURL" style="display:none;">@Url.Action("DeleteFile", "File")</span>
+<span id="UploadURL" style="display:none;">@Url.Action("UploadFiles", "File")</span>
 
 <h2>EDIT ARTICLE</h2>
 
@@ -86,12 +90,17 @@
 </form>
 
 @section Scripts{
-    <script src="~/source/GUICreation.js"></script>
-    <script src="~/source/FileExplorer.js"></script>
+    @*<script src="~/source/GUICreation.js"></script>*@
+    @*<script src="~/source/FileExplorer.js"></script>*@
 
-
+    @*<script src="~/lib/simplemde/simplemde.min.js"></script>
+    <script>
+        
+    </script>*@
+    <script type="module" src="~/js/Views/ArticleEdit/ArticleEdit.js"></script>
     <script src="~/lib/simplemde/simplemde.min.js"></script>
     <script>
+        //variables
         var simplemde = new SimpleMDE({
             element: document.getElementById("editor"),
             autoDownloadFontAwesome: false,
@@ -175,105 +184,6 @@
                 },
             ]
         });
-
-        addButtonListener();
-        addSubmitListener();
-
-        function addButtonListener() {
-            var saveButton = document.getElementById("saveButton");
-            saveButton.onclick = function () {
-                var submitButton = document.getElementById("submitButton")
-                submitButton.click();
-            };
-        }
-
-        function addSubmitListener() {
-            var element = document.getElementById("articleForm");
-            if (element.addEventListener) {
-                element.addEventListener("submit", function (e) { onSubmit(e); }, false);
-            }
-        }
-
-        function onSubmit(e) {
-            try {
-                AddTagsToForm("articleTags", "articleForm");
-            } catch (err) {
-                e.preventDefault();
-            }
-        }
-
-        function AddTagsToForm(tagElementId, formElementId) {
-            var form = document.getElementById(formElementId);
-            var tagList = GetTagList(tagElementId)
-
-            var tagsContainer = document.createElement("div");
-            for (var i = 0; i < tagList.length; i++) {
-
-                var tagInputElement = document.createElement("input");
-
-                tagInputElement.name = "RefToTags[" + i + "].ArticelTag.Name";
-                tagInputElement.type = "hidden";
-                tagInputElement.value = tagList[i];
-
-                tagsContainer.appendChild(tagInputElement);
-            }
-            form.appendChild(tagsContainer);
-            console.log(tagList);
-        }
-
-        //Split and Clean Input of TagElement
-        function GetTagList(tagElementId) {
-            var tagListElement = document.getElementById(tagElementId);
-            var tagFieldValue = tagListElement.value;
-            var tagList = tagFieldValue.split(",").map((item) => item.replace("#", "").trim());
-            tagList = tagList.filter(name => name.length > 0);
-
-            return tagList;
-        }
-
-        function toggleFileExplorer() {
-            //Expand sidebar to fit the FileExplorer
-            toggleSideBarExpansion();
-            toggleOffset();
-            
-            toggleAddFileExplorer();
-        }
-
-        //TODO: improve! must be cleaner and generally useable
-        function toggleOffset() {
-            let main = document.getElementById("main");
-
-            main.classList.toggle("offset-xl-1")
-        }
-
-        let fileExplorer = null;
-        function toggleAddFileExplorer() {
-            let fileExplorerElement = document.getElementById("file-explorer");
-
-            if (fileExplorerElement.classList.contains("d-none")) {
-                initFileExplorer();
-            } else {
-                fileExplorer = null;
-            }
-            fileExplorerElement.classList.toggle("d-none");
-        }
-
-        function initFileExplorer() {
-                fileExplorer = new FileExplorer('file-explorer');
-
-                fileExplorer.ImageUrl = "@Url.Action("GetFiles", "File")";
-                fileExplorer.DeleteFileUrl = "@Url.Action("DeleteFile", "File")";
-                fileExplorer.UploadUrl = "@Url.Action("UploadFiles", "File")";
-
-                fileExplorer.CreatePreviewImageURL = (file) => {
-                    if ('URL' in file) {
-                        return file.URL + "?width=80&height=80&keepRatio=true&imbedInBackground=true";
-                    } else {
-                        return ""
-                    }
-                }
-                fileExplorer.loadServerFiles();
-        }
     </script>
 }
 

@@ -10,6 +10,7 @@ namespace KnowledgeDB.Models.ViewModels.File
         public int Id { get; set; }
         public string DisplayName { get; set; }
         public string FileUrl { get; set; }
+        public string FileType { get; set; }
         public string FileDescription { get; set; }
     }
 }

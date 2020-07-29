@@ -10,10 +10,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="Scripts\Security.js" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="HtmlSanitizer" Version="5.0.331" />
     <PackageReference Include="Markdig" Version="0.20.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.6" />
@@ -34,11 +30,7 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\images\uploads\profilePictures\" />
-    <Folder Include="wwwroot\js\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <TypeScriptCompile Include="Scripts\Security.js" />
+    <Folder Include="wwwroot\source\views\article\" />
   </ItemGroup>
 
 </Project>

@@ -23,15 +23,11 @@ for (var i = 0; i < deleteConfirmDialogButtons.length; i++) {
     });
 }
 
-
-
 function uuidv4() {
     return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
         (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
     );
 }
-
-
 
 async function UploadFormData(formData, action, onUploadFinished) {
     try {
@@ -48,6 +44,12 @@ async function UploadFormData(formData, action, onUploadFinished) {
         onUploadFinished(false);
     }
 }
+
+function test() {
+
+}
+
+let tmp = new test();
 
 function copyToClipboard(text) {
     let body = document.getElementsByTagName("body")[0];

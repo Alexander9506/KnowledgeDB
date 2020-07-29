@@ -3,8 +3,8 @@
     "noImplicitAny": false,
     "noEmitOnError": true,
     "removeComments": false,
-    "sourceMap": true,
-    "target": "es6",
+    "sourceMap": false,
+    "target": "ES2019",
     "outDir": "wwwroot/js"
   },
   "include": [

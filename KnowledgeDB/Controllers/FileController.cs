@@ -59,9 +59,10 @@ namespace KnowledgeDB.Controllers
             IEnumerable<FilePreviewViewModel> files = rawFileContainer.ToList().Select(f => new FilePreviewViewModel
             {
                 Id = f.FileContainerId,
-                FileUrl = "/" + Path.GetRelativePath(environment.WebRootPath, f.FilePathFull).Replace("\\","/"),
+                FileUrl = "/" + Path.GetRelativePath(environment.WebRootPath, f.FilePathFull).Replace("\\", "/"),
                 DisplayName = f.FileDisplayName,
                 FileDescription = f.FileDescription,
+                FileType = f.FileType
             });
             
             return new JsonResult(files);

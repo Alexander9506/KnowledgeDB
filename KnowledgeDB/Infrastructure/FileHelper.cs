@@ -33,12 +33,14 @@ namespace KnowledgeDB.Infrastructure
 
         public async Task<bool> DeleteFileAsync(FileContainer container)
         {
-            if(container != null && container.FileContainerId > 0 
-                && File.Exists(container.FilePathFull))
+            if(container != null && container.FileContainerId > 0)
             {
                 try
                 {
-                    File.Delete(container.FilePathFull);
+                    if (File.Exists(container.FilePathFull))
+                    {
+                        File.Delete(container.FilePathFull);
+                    }
 
                     return await _fileRepository.DeleteFileContainer(container);
                 }

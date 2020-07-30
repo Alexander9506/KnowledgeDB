@@ -2,9 +2,7 @@
 <div id="file-explorer" class="container d-none">
 </div>
 
-@*<script src="~/source/GUICreation.js"></script>
-    <script src="~/source/FileExplorer.js"></script>*@
-<script src="~/js/FileExplorer.js"></script>
+<script type="module" src="~/js/FileExplorer.js"></script>
 
 <script>
     const fileExplorer = new FileExplorer();
@@ -18,9 +16,9 @@
 
     fileExplorer.setFilter(filter);
 
-    fileExplorer.ImageUrl = (document.getElementById("ImageURL") as HTMLSpanElement).innerHTML;
-    fileExplorer.DeleteFileURL = (document.getElementById("DeleteFileURL") as HTMLSpanElement).innerHTML;
-    fileExplorer.UploadFileURL = (document.getElementById("UploadURL") as HTMLSpanElement).innerHTML;
+    fileExplorer.ImageUrl = document.getElementById("ImageURL").innerHTML;
+    fileExplorer.DeleteFileURL = document.getElementById("DeleteFileURL").innerHTML;
+    fileExplorer.UploadFileURL = document.getElementById("UploadURL").innerHTML;
 
     fileExplorer.CreatePreviewImageURL = (file) => {
         if ('URL' in file) {

@@ -40,3 +40,12 @@ code {
 .teaser-image:not([src]) {
     background-color: rgba(0, 0, 0, 0.2);
 }
+
+.input-validation-error {
+    border-color: red;
+    background-color: #fee;
+}
+
+#main {
+    transition: .5s;
+}

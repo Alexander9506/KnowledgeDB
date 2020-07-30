@@ -103,12 +103,15 @@ function toggleAddFileExplorer() : void {
 }
 
 function initFileExplorer() {
-    fileExplorer = new FileExplorer('file-explorer', true);
+    fileExplorer = new FileExplorer('file-explorer');
+    
+    fileExplorer.ItemsPerPage = 2;
+    fileExplorer.ShowItemsOnPages = true;
 
     fileExplorer.ImageUrl = (document.getElementById("ImageURL") as HTMLSpanElement).innerHTML;
     fileExplorer.DeleteFileURL = (document.getElementById("DeleteFileURL") as HTMLSpanElement).innerHTML;
     fileExplorer.UploadFileURL = (document.getElementById("UploadURL") as HTMLSpanElement).innerHTML;
-
+        
     fileExplorer.CreatePreviewImageURL = (file) => {
         if ('URL' in file) {
             return file.URL + "?width=80&height=80&keepRatio=true&imbedInBackground=true";
@@ -116,5 +119,7 @@ function initFileExplorer() {
             return ""
         }
     }
+
+    fileExplorer.buildGUI();
     fileExplorer.refresh();
 }

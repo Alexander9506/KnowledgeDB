@@ -97,27 +97,37 @@ export class FileExplorer {
     private ID_fileExplorerCbxOnlyNewFiles: string = 'file-explorer-cbox-only-new-files';
     private ID_fileExplorerCbxPreviewImages: string = 'file-explorer-cbox-preview-images';
     private ID_fileExplorerFiles: string = 'file-explorer-files';
+    private ID_fileExplorerPagination: string = 'file-explorer-files-pagination';
+
+    //options
+    public ShowItemsOnPages: boolean = false;
+    public ItemsPerPage: number = 10;
+    private CurrentItemPage: number = 0;
 
     public ShowPreviewImage: Boolean = false;
     public CreatePreviewImageURL : Function = null;
     public ImageUrl : string = null;
     public DeleteFileURL : string = null;
-    public UploadFileURL : string = null;
+    public UploadFileURL: string = null;
+    public CreateGUI: boolean = true;
 
     private _filter: FileFilter = null;
-    private _files: FileContainer[] = [];
+    private _cachedFiles: FileContainer[] = [];
+    private _filteredCachedFiles: FileContainer[] = [];
 
     //Css
     private CSS_PreviewImage: string = "file-explorer-previewimage";
 
 
-    constructor(fileExplorerId: string, createGui? : boolean) {
+    constructor(fileExplorerId: string) {
         this.ID_fileExplorer = fileExplorerId;
 
         this._filter = new FileFilter();
         this._filter.fileType = "image";
+    }
 
-        if (createGui) {
+    public buildGUI(): void {
+        if (this.CreateGUI) {
             this.createGUI();
         }
 
@@ -125,7 +135,6 @@ export class FileExplorer {
     }
 
     private createGUI(): void {
-
         let mainDiv = document.getElementById(this.ID_fileExplorer);
 
         if (mainDiv) {
@@ -142,8 +151,12 @@ export class FileExplorer {
             let fileList = document.createElement("ul");
             fileList.id = this.ID_fileExplorerFiles
             fileList.className = "list-group";
-
             filesDiv.appendChild(fileList);
+
+            if (this.ShowItemsOnPages) {
+                let fileListPagination = this.createFileListPagination();
+                filesDiv.appendChild(fileListPagination);
+            }
 
             mainDiv.appendChild(searchbar);
             mainDiv.appendChild(settingsbar);
@@ -152,6 +165,69 @@ export class FileExplorer {
         } else {
             console.log("No FileExplorer-Container found")
         }
+    }
+
+    private createFileListPagination(): HTMLDivElement {
+        let mainDiv: HTMLDivElement = document.createElement("div") as HTMLDivElement;
+        mainDiv.id = this.ID_fileExplorerPagination;
+        mainDiv.className = "btn-group m-1 float-right";
+
+        return mainDiv;
+    }
+
+    private createPaginationButtons(totalItemCount: number, itemsPerPage: number): void {
+        let self = this;
+        let pageCount = Math.ceil(totalItemCount / itemsPerPage);
+        this.CurrentItemPage = 1;
+
+        let paginationMainDiv = document.getElementById(this.ID_fileExplorerPagination);
+
+        if (paginationMainDiv) {
+            paginationMainDiv.innerHTML = "";
+            for (let i = 0; i < pageCount; i++) {
+                let pageButton: HTMLButtonElement = document.createElement("button");
+                let buttonIndex: number = i + 1;
+
+                pageButton.innerHTML =  buttonIndex + "";
+                pageButton.className = "btn btn-secondary";
+
+                if (buttonIndex == this.CurrentItemPage) {
+                    pageButton.className = "btn btn-primary";
+                }
+
+                pageButton.onclick = function () {
+                    self.removeActivePaginationTag();
+                    pageButton.classList.add("btn-primary");
+                    pageButton.classList.remove("btn-secondary");
+                    self.CurrentItemPage = buttonIndex;
+                    self.refreshGUI();
+                }
+                paginationMainDiv.appendChild(pageButton);
+            }
+        }
+    }
+
+    private removeActivePaginationTag(): void {
+        let paginationDiv = document.getElementById(this.ID_fileExplorerPagination);
+
+        if (paginationDiv) {
+            let activePaginationButtons: HTMLCollectionOf<HTMLButtonElement> = paginationDiv.getElementsByClassName("btn-primary") as HTMLCollectionOf<HTMLButtonElement>;
+
+            for (let i = 0; i < activePaginationButtons.length; i++) {
+                activePaginationButtons[i].classList.add("btn-secondary");
+                activePaginationButtons[i].classList.remove("btn-primary");
+            }
+        }
+    }
+
+    private showItemsForPage(pageNumber: number, itemsPerPage: number, files: FileContainer[]): void{
+        //PageNumber starts at 1 but we need 0
+        let pageIndex = pageNumber - 1;
+        let startIndex: number = pageIndex * itemsPerPage;
+        let endIndex: number = startIndex + itemsPerPage;
+        endIndex = Math.min(endIndex, files.length);
+
+        this.showFiles(files.slice(startIndex, endIndex));
     }
 
     private createSettings(): HTMLDivElement {
@@ -269,8 +345,8 @@ export class FileExplorer {
             const id = self.generateFileId(f);
             return new FileContainer(f,  id, id, UploadStates.Added);
         });
-        this._files.push.apply(this._files, transformedFiles);
-        this.showFiles(this._files);
+        this._cachedFiles.push.apply(this._cachedFiles, transformedFiles);
+        this.showFiles(this._cachedFiles);
     }
 
     private generateFileId(file) {
@@ -282,19 +358,40 @@ export class FileExplorer {
         searchFilter.name = search;
 
         this._filter.addFilter(searchFilter);
+
+        this.refreshFilteredFiles();
+        if (this.ShowItemsOnPages) {
+            this.createPaginationButtons(this._filteredCachedFiles.length, this.ItemsPerPage);
+        }
         this.refreshGUI();
     }
 
+    private refreshFilteredFiles(): void{
+        this._filteredCachedFiles = this.filterCachedFiles();
+    }
+    
+    private filterCachedFiles() : FileContainer[] {
+       return this.filterFiles(this._filter, this._cachedFiles);
+    }
 
     public refresh() {
         this.loadServerFiles(() => {
+            this.refreshFilteredFiles();
+            if (this.ShowItemsOnPages) {
+                this.createPaginationButtons(this._filteredCachedFiles.length, this.ItemsPerPage);
+            }
             this.refreshGUI()
         });
     }
 
     private refreshGUI() {
-        let files: FileContainer[] = this.filterFiles(this._filter, this._files);
-        this.showFiles(files);
+        let files: FileContainer[] = this._filteredCachedFiles;
+
+        if (this.ShowItemsOnPages) {
+            this.showItemsForPage(this.CurrentItemPage, this.ItemsPerPage, files);
+        } else {
+            this.showFiles(files);
+        }
     }
 
     private filterFiles(fileFilter: FileFilter, files : FileContainer[]) : FileContainer[] {
@@ -405,11 +502,11 @@ export class FileExplorer {
     }
 
     private deleteFileLocal(file : FileContainer) : void {
-        this._files = this._files.filter(f => f.fileId !== file.fileId);
+        this._cachedFiles = this._cachedFiles.filter(f => f.fileId !== file.fileId);
         this.refreshGUI();
     }
 
-    private async deleteFileOnServer(file : FileContainer, onFileDelete) {
+    private async deleteFileOnServer(file : FileContainer, onFileDelete) : Promise<void> {
         if (file == null || this.DeleteFileURL == null) {
             return;
         }
@@ -521,9 +618,9 @@ export class FileExplorer {
                         });
 
                         //remove all local files from the "server"
-                        self._files = self._files.filter(f => f.uploadState === UploadStates.Added || f.uploadState === UploadStates.OnUpload);
+                        self._cachedFiles = self._cachedFiles.filter(f => f.uploadState === UploadStates.Added || f.uploadState === UploadStates.OnUpload);
                         //add new loaded server files
-                        self._files.push.apply(self._files, transformedFiles);
+                        self._cachedFiles.push.apply(self._cachedFiles, transformedFiles);
                         if (filesLoadedCallback != null) {
                             filesLoadedCallback();
                         }

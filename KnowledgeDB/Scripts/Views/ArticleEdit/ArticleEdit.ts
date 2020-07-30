@@ -1,5 +1,6 @@
 ﻿import * as GuiCreation from "../../GuiCreation.js";
-import { FileExplorer } from "../../FileExplorer.js";
+import { FileExplorer, FileFilter } from "../../FileExplorer.js";
+
 
 addButtonListener();
 addSubmitListener();
@@ -17,14 +18,6 @@ function addButtonListener() : void {
     toggleFileExplorerButton.onclick = function () {
         toggleFileExplorer();
     };
-
-    //let reloadButton: HTMLButtonElement = document.getElementById("reloadFiles") as HTMLButtonElement;
-    //reloadButton.onclick = function () {
-    //    if (fileExplorer) {
-    //        fileExplorer.refresh();
-    //    }
-    //}
-
 }
 
 function addSubmitListener() {
@@ -105,8 +98,12 @@ function toggleAddFileExplorer() : void {
 function initFileExplorer() {
     fileExplorer = new FileExplorer('file-explorer');
     
-    fileExplorer.ItemsPerPage = 2;
+    fileExplorer.ItemsPerPage = 10;
     fileExplorer.ShowItemsOnPages = true;
+
+    let filter = new FileFilter();
+    filter.fileType = "image";
+    fileExplorer.setFilter(filter);
 
     fileExplorer.ImageUrl = (document.getElementById("ImageURL") as HTMLSpanElement).innerHTML;
     fileExplorer.DeleteFileURL = (document.getElementById("DeleteFileURL") as HTMLSpanElement).innerHTML;

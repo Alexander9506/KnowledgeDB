@@ -1,26 +1,5 @@
-﻿<div id="file-explorer">
-    <div class="form-group">
-        <input id="file-explorer-search" class="form-control col-md-10" type="search" name="search" placeholder="Search" aria-label="Search" autocomplete="off" />
-        <input id="file-explorer-add-file" multiple type="file" class="d-none" />
-
-        <div class="col-md-2 justify-content-around">
-            <button type="button" class="btn btn-outline-secondary ml-1" onclick="document.getElementById('file-explorer-add-file').click()">Add File</button>
-            <button type="button" image="Sync" image-classes="p-1" class="btn btn-outline-success ml-1" onclick="fileExplorer.loadServerFiles();">Reload</button>
-        </div>
-    </div>
-
-    <div id="file-explorer-settings">
-        <span class="text-black-50 col">Settings</span>
-        <div class="custom-control custom-switch col">
-            <input type="checkbox" class="custom-control-input" id="file-explorer-cbox-preview-images">
-            <label class="custom-control-label" for="file-explorer-cbox-preview-images">Show preview images</label>
-        </div>
-    </div>
-
-    <div>
-        <ul id="file-explorer-files" class="list-group">
-        </ul>
-    </div>
+﻿@*File Explorer*@
+<div id="file-explorer" class="container d-none">
 </div>
 
 @*<script src="~/source/GUICreation.js"></script>
@@ -28,18 +7,29 @@
 <script src="~/js/FileExplorer.js"></script>
 
 <script>
-    const fileExplorer = new FileExplorer('file-explorer');
+    const fileExplorer = new FileExplorer();
 
-    fileExplorer.ImageUrl = "@Url.Action("GetFiles", "File")";
-    fileExplorer.DeleteFileUrl = "@Url.Action("DeleteFile", "File")";
-    fileExplorer.UploadUrl = "@Url.Action("UploadFiles", "File")";
+    fileExplorer.ItemsPerPage = 2;
+    fileExplorer.ShowItemsOnPages = true;
+
+
+    let filter = new FileFilter();
+    filter.fileType = "image";
+
+    fileExplorer.setFilter(filter);
+
+    fileExplorer.ImageUrl = (document.getElementById("ImageURL") as HTMLSpanElement).innerHTML;
+    fileExplorer.DeleteFileURL = (document.getElementById("DeleteFileURL") as HTMLSpanElement).innerHTML;
+    fileExplorer.UploadFileURL = (document.getElementById("UploadURL") as HTMLSpanElement).innerHTML;
 
     fileExplorer.CreatePreviewImageURL = (file) => {
         if ('URL' in file) {
-            return file.URL + "?transform&width=80&height=80&keepRatio=true&imbedInBackground=true&fast=true";
+            return file.URL + "?width=80&height=80&keepRatio=true&imbedInBackground=true&fast=true";
         } else {
             return ""
         }
     }
-    fileExplorer.loadServerFiles();
+
+    fileExplorer.buildGUI();
+    fileExplorer.refresh();
 </script>

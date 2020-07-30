@@ -19,7 +19,7 @@ type File = {
     type: string;
 }
 
-class FileFilter implements IFileFilter{
+export class FileFilter implements IFileFilter{
     fileType: string = "";
     name: string = "";
 
@@ -118,12 +118,14 @@ export class FileExplorer {
     //Css
     private CSS_PreviewImage: string = "file-explorer-previewimage";
 
+    constructor(fileExplorerId?: string) {
+        if (fileExplorerId) {
+            this.ID_fileExplorer = fileExplorerId;
+        }
+    }
 
-    constructor(fileExplorerId: string) {
-        this.ID_fileExplorer = fileExplorerId;
-
-        this._filter = new FileFilter();
-        this._filter.fileType = "image";
+    public setFilter(filter: FileFilter) {
+        this._filter = filter;
     }
 
     public buildGUI(): void {
@@ -493,7 +495,11 @@ export class FileExplorer {
         let removeButton : HTMLButtonElement = GuiCreation.createImageButton("fas fa-trash", "btn btn-outline-danger m-1", "Remove")
         removeButton.onclick = function () {
             if (file.fileId !== "") {
-                self.deleteFileOnServer(file, (f) => self.deleteFileLocal(f));
+                self.deleteFileOnServer(file, (f) => {
+                    self.deleteFileLocal(f);
+                    self.refreshFilteredFiles();
+                    self.refreshGUI();
+                });
             } else {
                 self.deleteFileLocal(file);
             }
@@ -503,7 +509,6 @@ export class FileExplorer {
 
     private deleteFileLocal(file : FileContainer) : void {
         this._cachedFiles = this._cachedFiles.filter(f => f.fileId !== file.fileId);
-        this.refreshGUI();
     }
 
     private async deleteFileOnServer(file : FileContainer, onFileDelete) : Promise<void> {

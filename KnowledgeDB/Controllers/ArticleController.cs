@@ -13,27 +13,35 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace KnowledgeDB.Controllers
 {
     public class ArticleController : Controller
     {
-        private IArticleRepository articleRepository;
-        private IFileRepository fileRepository;
-        private IWebHostEnvironment environment;
-        private IConfiguration configuration;
+        private readonly IArticleRepository articleRepository;
+        private readonly IFileRepository fileRepository;
+        private readonly IWebHostEnvironment environment;
+        private readonly IConfiguration configuration;
+        private readonly ILogger _logger;
         private int entriesPerPage = 10;
 
-        public ArticleController(IArticleRepository repository, IWebHostEnvironment environment, IConfiguration configuration, IFileRepository fileRepository)
+        public ArticleController(IArticleRepository repository, 
+            IWebHostEnvironment environment,
+            IConfiguration configuration, 
+            IFileRepository fileRepository,
+            ILogger<ArticleController> logger)
         {
             this.articleRepository = repository;
             this.fileRepository = fileRepository;
             this.environment = environment;
             this.configuration = configuration;
+            this._logger = logger;
         }
 
         public IActionResult Index()
         {
+            this._logger.LogInformation("Show Index");
             return RedirectToAction(nameof(List));
         }
 

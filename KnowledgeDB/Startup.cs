@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Serilog;
 
 namespace KnowledgeDB
 {
@@ -53,7 +54,8 @@ namespace KnowledgeDB
             
             app.UseTransformedImageMiddleware();
             app.UseStaticFiles();
-            
+
+            app.UseSerilogRequestLogging();
             app.UseRouting();
 
             app.UseAuthentication();

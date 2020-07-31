@@ -3,6 +3,7 @@ using KnowledgeDB.Models.Repositories;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -23,12 +24,18 @@ namespace KnowledgeDB.Infrastructure
         private readonly IFileRepository _fileRepository;
         private readonly IConfiguration _configuration;
         private readonly IWebHostEnvironment _environment;
+        private readonly ILogger _logger;
 
-        public FileHelper(IFileRepository fileRepository, IConfiguration configuration, IWebHostEnvironment environment)
+        public FileHelper(
+            IFileRepository fileRepository, 
+            IConfiguration configuration, 
+            IWebHostEnvironment environment,
+            ILogger<FileHelper> logger)
         {
             _fileRepository = fileRepository;
             _configuration = configuration;
             _environment = environment;
+            _logger = logger;
         }
 
         public async Task<bool> DeleteFileAsync(FileContainer container)
@@ -46,7 +53,7 @@ namespace KnowledgeDB.Infrastructure
                 }
                 catch (Exception e)
                 {
-                    //TODO: Log
+                    _logger.LogError(e, "File could'nt be deleted correctly");
                     return false;
                 }
             }
@@ -94,7 +101,7 @@ namespace KnowledgeDB.Infrastructure
                     }
                     catch (Exception e)
                     {
-                        //TODO: Logging
+                        _logger.LogError(e, "File could'nt be saved correctly");
                     }
                 }
             }

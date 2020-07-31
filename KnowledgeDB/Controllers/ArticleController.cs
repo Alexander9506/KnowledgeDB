@@ -41,7 +41,6 @@ namespace KnowledgeDB.Controllers
 
         public IActionResult Index()
         {
-            this._logger.LogInformation("Show Index");
             return RedirectToAction(nameof(List));
         }
 

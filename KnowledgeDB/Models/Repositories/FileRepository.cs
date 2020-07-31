@@ -1,4 +1,5 @@
 ﻿using KnowledgeDB.Models.Context;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +10,11 @@ namespace KnowledgeDB.Models.Repositories
     public class FileRepository : IFileRepository
     {
         private EFContext context;
-
-        public FileRepository(EFContext context)
+        private readonly ILogger _logger;
+        public FileRepository(EFContext context, ILogger<FileRepository> logger)
         {
             this.context = context;
+            _logger = logger;
         }
 
         public IQueryable<FileContainer> FileContainers => context.FileContainers;
@@ -29,7 +31,7 @@ namespace KnowledgeDB.Models.Repositories
                 }
                 catch (Exception e)
                 {
-                    //TODO: Logging
+                    _logger.LogError(e, "Could'nt delete FileContainer");
                 }
             }
             return false;
@@ -46,7 +48,7 @@ namespace KnowledgeDB.Models.Repositories
                 }
             }catch(Exception e)
             {
-                //TODO: Logging
+                _logger.LogError(e, "Could'nt save FileContainer");
             }
             return null;
         }

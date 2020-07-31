@@ -1,5 +1,6 @@
 ﻿using KnowledgeDB.Models.Context;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,10 +11,12 @@ namespace KnowledgeDB.Models.Repositories
     public class ArticleRepository : IArticleRepository
     {
         private EFContext context;
+        private readonly ILogger _logger;
 
-        public ArticleRepository(EFContext context)
+        public ArticleRepository(EFContext context, ILogger<ArticleRepository> logger)
         {
             this.context = context;
+            _logger = logger;
         }
 
         public IQueryable<Article> Articles => context.Articles.Include(a => a.RefToTags).ThenInclude(rtt => rtt.ArticelTag);
@@ -32,7 +35,7 @@ namespace KnowledgeDB.Models.Repositories
                 }
                 catch (Exception e)
                 {
-                    //TODO: Logging
+                    _logger.LogError(e, "Could'nt delete Article");
                 }
             }
             return false;
@@ -82,7 +85,7 @@ namespace KnowledgeDB.Models.Repositories
             }
             catch (Exception e)
             {
-                //TODO: Logging
+                _logger.LogError(e, "Could'nt save Article");
                 return false;
             }
         }

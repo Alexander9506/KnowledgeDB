@@ -40,13 +40,16 @@ namespace KnowledgeDB
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
+            if (!env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
                 app.UseStatusCodePages();
             }
             else
             {
+                app.UseExceptionHandler("/ServerError");
+                app.UseStatusCodePagesWithReExecute("/Error/{0}");
+                
                 //app.UseHsts();
             }
 
@@ -54,6 +57,7 @@ namespace KnowledgeDB
             
             app.UseTransformedImageMiddleware();
             app.UseStaticFiles();
+
 
             app.UseSerilogRequestLogging();
             app.UseRouting();

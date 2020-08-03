@@ -2,6 +2,7 @@
   "Taghelper": {
     "Keywords": {
       "Edit": "fas fa-edit",
+      "Home": "fas fa-home",
       "Close": "fas fa-times",
       "Save": "fas fa-save",
       "Sync": "fas fa-sync",

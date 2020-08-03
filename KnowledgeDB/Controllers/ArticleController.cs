@@ -41,6 +41,7 @@ namespace KnowledgeDB.Controllers
 
         public IActionResult Index()
         {
+            throw new Exception("Test Error");
             return RedirectToAction(nameof(List));
         }
 

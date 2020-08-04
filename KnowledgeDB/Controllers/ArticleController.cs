@@ -20,22 +20,12 @@ namespace KnowledgeDB.Controllers
     public class ArticleController : Controller
     {
         private readonly IArticleRepository articleRepository;
-        private readonly IFileRepository fileRepository;
-        private readonly IWebHostEnvironment environment;
-        private readonly IConfiguration configuration;
         private readonly ILogger _logger;
-        private int entriesPerPage = 10;
+        public int EntriesPerPage = 10;
 
-        public ArticleController(IArticleRepository repository, 
-            IWebHostEnvironment environment,
-            IConfiguration configuration, 
-            IFileRepository fileRepository,
-            ILogger<ArticleController> logger)
+        public ArticleController(IArticleRepository repository, ILogger<ArticleController> logger)
         {
             this.articleRepository = repository;
-            this.fileRepository = fileRepository;
-            this.environment = environment;
-            this.configuration = configuration;
             this._logger = logger;
         }
 
@@ -89,7 +79,7 @@ namespace KnowledgeDB.Controllers
             else
             {
                 filterTag = articleRepository.ArticleTags.FirstOrDefault(a => a.ArticleTagId == articleTagId);
-                articles = articleRepository.Articles.Where(a => a.RefToTags.Select(t => t.ArticelTag.ArticleTagId).Contains(articleTagId));
+                articles = articleRepository.Articles.Where(a => a.RefToTags != null && a.RefToTags.Select(t => t.ArticelTag.ArticleTagId).Contains(articleTagId));
             }
 
             ArticleListViewModel listModel = new ArticleListViewModel
@@ -99,11 +89,11 @@ namespace KnowledgeDB.Controllers
                     Pagination = new PaginationInfo
                     {
                         CurrentPage = page,
-                        EntriesPerPage = entriesPerPage,
+                        EntriesPerPage = EntriesPerPage,
                         TotalEntries = articles.Count(),
                     },
                     PartialViewName = "ArticleCard",
-                    Entries = articles.OrderByDescending(a => a.ModifiedAt).Skip((page - 1) * entriesPerPage).Take(entriesPerPage)
+                    Entries = articles.OrderByDescending(a => a.ModifiedAt).Skip((page - 1) * EntriesPerPage).Take(EntriesPerPage)
                 },
                 ArticleTagId = articleTagId,
                 PageName = filterTag != null ? $"Articles with Tag: {filterTag.Name}" : "Last Modified Articles"
@@ -123,11 +113,11 @@ namespace KnowledgeDB.Controllers
                     Pagination = new PaginationInfo
                     {
                         CurrentPage = page,
-                        EntriesPerPage = entriesPerPage,
+                        EntriesPerPage = EntriesPerPage,
                         TotalEntries = articles.Count(),
                     },
                     PartialViewName = "ArticleCard",
-                    Entries = articles.OrderBy(a => a.ModifiedAt).Skip((page - 1) * entriesPerPage).Take(entriesPerPage)
+                    Entries = articles.OrderBy(a => a.ModifiedAt).Skip((page - 1) * EntriesPerPage).Take(EntriesPerPage)
                 },
                 ArticleTagId = 0,
                 PageName = $"You searched for: {search}"

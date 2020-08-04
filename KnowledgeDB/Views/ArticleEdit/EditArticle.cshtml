@@ -4,25 +4,25 @@
     <link rel="stylesheet" href="~/lib/simplemde/simplemde.min.css" />
 }
 
-@{
-            string tagListString = null;
-            if (Model.RefToTags != null)
-            {
-                tagListString = String.Join(", ", Model.RefToTags.Select(rtt => $"#{rtt.ArticelTag.Name}"));
-            }
-
-
-            string returnUrl = "";
-            if(Model.ArticleId > 0)
-            {
-                returnUrl = Url.Action("ShowArticle", "Article", new { articleId = Model.ArticleId });
-            }
+    @{
+        string tagListString = null;
+        if (Model.RefToTags != null)
+        {
+            tagListString = String.Join(", ", Model.RefToTags.Select(rtt => $"#{rtt.ArticelTag.Name}"));
         }
 
-        @section header_toolbar{
-    <a image="Save" id="saveButton" class="text-primary">Save</a>
-    <a image="FileExplorer" id="toggleFileExplorer" class="text-primary">File Explorer</a>
-    <a image="Close" asp-action="List" asp-controller="Article" class="text-primary">Close</a>
+
+        string returnUrl = "";
+        if(Model.ArticleId > 0)
+        {
+            returnUrl = Url.Action("ShowArticle", "Article", new { articleId = Model.ArticleId });
+        }
+    }
+
+    @section header_toolbar{
+        <a image="Save" id="saveButton" class="text-primary">Save</a>
+        <a image="FileExplorer" id="toggleFileExplorer" class="text-primary">File Explorer</a>
+        <a image="Close" asp-action="List" asp-controller="Article" class="text-primary">Close</a>
     }
 
     @section expanding_sidebar{

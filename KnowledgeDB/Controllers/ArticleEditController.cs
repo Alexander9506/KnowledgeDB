@@ -27,6 +27,10 @@ namespace KnowledgeDB.Controllers
             if(articleId > 0)
             {
                 article = articleRepository.Articles.FirstOrDefault(a => a.ArticleId == articleId);
+                if(article == null)
+                {
+                    TempData["message"] = $"Article could'nt be found/opened";
+                }
             }
 
             //Load empty Article if no IDs found

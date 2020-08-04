@@ -82,22 +82,9 @@ namespace KnowledgeDB.Controllers
                 articles = articleRepository.Articles.Where(a => a.RefToTags != null && a.RefToTags.Select(t => t.ArticelTag.ArticleTagId).Contains(articleTagId));
             }
 
-            ArticleListViewModel listModel = new ArticleListViewModel
-            {
-                ListViewModel = new ListViewModel
-                {
-                    Pagination = new PaginationInfo
-                    {
-                        CurrentPage = page,
-                        EntriesPerPage = EntriesPerPage,
-                        TotalEntries = articles.Count(),
-                    },
-                    PartialViewName = "ArticleCard",
-                    Entries = articles.OrderByDescending(a => a.ModifiedAt).Skip((page - 1) * EntriesPerPage).Take(EntriesPerPage)
-                },
-                ArticleTagId = articleTagId,
-                PageName = filterTag != null ? $"Articles with Tag: {filterTag.Name}" : "Last Modified Articles"
-            };
+            string pageName = filterTag != null ? $"Articles with Tag: {filterTag.Name}" : "Last Modified Articles";
+            ArticleListViewModel listModel = CreateListViewModel(page, articles, pageName, articleTagId);
+
             return View(listModel);
         }
 
@@ -106,6 +93,15 @@ namespace KnowledgeDB.Controllers
             int page = 1;
             var articles = articleRepository.SearchArticles(search).ToList();
 
+            ArticleListViewModel listViewModel = CreateListViewModel(page, articles, $"You searched for: {search}");
+            return View("List", listViewModel);
+        }
+
+        private IEnumerable<Article> getArticlesForPage(IEnumerable<Article> articles, int page) => 
+            articles.OrderByDescending(a => a.ModifiedAt).Skip((page - 1) * EntriesPerPage).Take(EntriesPerPage);
+        
+        private ArticleListViewModel CreateListViewModel(int page, IEnumerable<Article> articles, string pageName, int articleTagId = 0)
+        {
             ArticleListViewModel listModel = new ArticleListViewModel
             {
                 ListViewModel = new ListViewModel
@@ -117,12 +113,12 @@ namespace KnowledgeDB.Controllers
                         TotalEntries = articles.Count(),
                     },
                     PartialViewName = "ArticleCard",
-                    Entries = articles.OrderBy(a => a.ModifiedAt).Skip((page - 1) * EntriesPerPage).Take(EntriesPerPage)
+                    Entries = getArticlesForPage(articles, page)
                 },
-                ArticleTagId = 0,
-                PageName = $"You searched for: {search}"
+                ArticleTagId = articleTagId,
+                PageName = pageName
             };
-            return View("List", listModel);
+            return listModel;
         }
 
     }

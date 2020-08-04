@@ -5,20 +5,27 @@
 }
 
 @{
-    string tagListString = null;
-    if (Model.RefToTags != null)
-    {
-        tagListString = String.Join(", ", Model.RefToTags.Select(rtt => $"#{rtt.ArticelTag.Name}"));
-    }
-}
+            string tagListString = null;
+            if (Model.RefToTags != null)
+            {
+                tagListString = String.Join(", ", Model.RefToTags.Select(rtt => $"#{rtt.ArticelTag.Name}"));
+            }
 
-@section header_toolbar{
+
+            string returnUrl = "";
+            if(Model.ArticleId > 0)
+            {
+                returnUrl = Url.Action("ShowArticle", "Article", new { articleId = Model.ArticleId });
+            }
+        }
+
+        @section header_toolbar{
     <a image="Save" id="saveButton" class="text-primary">Save</a>
     <a image="FileExplorer" id="toggleFileExplorer" class="text-primary">File Explorer</a>
     <a image="Close" asp-action="List" asp-controller="Article" class="text-primary">Close</a>
-}
+    }
 
-@section expanding_sidebar{
+    @section expanding_sidebar{
     @*File Explorer*@
     <div id="file-explorer" class="container d-none">
     </div>
@@ -31,7 +38,7 @@
 <h2>EDIT ARTICLE</h2>
 
 <form id="articleForm" method="post" asp-action="SaveArticle" asp-controller="ArticleEdit">
-    <input type="hidden" name="returnUrl" value="@Url.Action("ShowArticle", "Article", new { articleId= Model.ArticleId })" />
+    <input type="hidden" name="returnUrl" value="@returnUrl" />
     <input type="hidden" asp-for="ArticleId" />
 
     <div class="form-group">

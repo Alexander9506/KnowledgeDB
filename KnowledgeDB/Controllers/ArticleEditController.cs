@@ -59,13 +59,7 @@ namespace KnowledgeDB.Controllers
         {
             if (ModelState.IsValid)
             {
-                IEnumerable<ArticleTag> rawTagList = article.RefToTags.Select(rtt => rtt.ArticelTag);
-                IEnumerable<String> tagListNames = rawTagList.Select(t => t.Name);
-
-                List<ArticleTag> dbTagList = articleRepository.ArticleTags.Where(at => tagListNames.Contains(at.Name)).ToList();
-                List<RefArticleArticleTag> finalTagList = rawTagList.Select(tag => new RefArticleArticleTag { ArticelTag = dbTagList.FirstOrDefault(dbTag => dbTag.Name == tag.Name) ?? tag, Article = article}).ToList();
-
-                article.RefToTags = finalTagList;
+                article.RefToTags = createArticleTagReferences(article);
 
                 if(await articleRepository.SaveArticleAsync(article))
                 {
@@ -77,10 +71,35 @@ namespace KnowledgeDB.Controllers
                     TempData["message"] = $"{article.Title} could not be saved";
                     return View(nameof(EditArticle), article);
                 }
+                if (String.IsNullOrWhiteSpace(returnUrl))
+                {
+                    returnUrl = Url.Action("ShowArticle", "Article", article);
+                }
+
                 return Redirect(returnUrl);
             }
 
             return View(nameof(EditArticle),article);
+        }
+
+        private List<RefArticleArticleTag> createArticleTagReferences(Article article)
+        {
+            List<RefArticleArticleTag> finalTagList = null;
+
+            if(article.RefToTags != null && article.RefToTags.Count > 0)
+            {
+                //Get list of Articles
+                IEnumerable<ArticleTag> rawTagList = article.RefToTags.Select(rtt => rtt.ArticelTag);
+                //Get list of TagNames
+                IEnumerable<String> tagListNames = rawTagList.Select(t => t.Name);
+
+                //load ArticleTag Objects with the tagName from database 
+                List<ArticleTag> dbTagList = articleRepository.ArticleTags.Where(at => tagListNames.Contains(at.Name)).ToList();
+                //create the new References to the Article and the Tag
+                finalTagList = rawTagList.Select(tag => new RefArticleArticleTag { ArticelTag = dbTagList.FirstOrDefault(dbTag => dbTag.Name == tag.Name) ?? tag, Article = article }).ToList();
+            }
+
+            return finalTagList;
         }
     }
 }

@@ -20,14 +20,12 @@ namespace KnowledgeDB.Controllers
     {
         private readonly IFileRepository fileRepository;
         private readonly IWebHostEnvironment environment;
-        private readonly IConfiguration _configuration;
         private readonly IFileHelper _fileHelper;
 
-        public FileController(IFileRepository fileRepository, IWebHostEnvironment environment, IConfiguration configuration, IFileHelper fileHelper)
+        public FileController(IFileRepository fileRepository, IWebHostEnvironment environment, IFileHelper fileHelper)
         {
             this.fileRepository = fileRepository;
             this.environment = environment;
-            this._configuration = configuration;
             this._fileHelper = fileHelper;
         }
 
@@ -53,7 +51,7 @@ namespace KnowledgeDB.Controllers
             if(filter?.FileType != null)
             {
                 string fileType = filter.FileType.ToLower();
-                rawFileContainer = rawFileContainer.Where(fc => fc.FileType.Substring(0, Math.Min(fc.FileType.Length, fileType.Length)).ToLower() == fileType);
+                rawFileContainer = rawFileContainer.Where(fc => !String.IsNullOrWhiteSpace(fc.FileType) && fc.FileType.Substring(0, Math.Min(fc.FileType.Length, fileType.Length)).ToLower() == fileType);
             }
 
             IEnumerable<FilePreviewViewModel> files = rawFileContainer.ToList().Select(f => new FilePreviewViewModel

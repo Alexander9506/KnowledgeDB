@@ -48,11 +48,10 @@ namespace KnowledgeDB.Controllers
             {
                 TempData["message"] = $"{toDeleteArticle.Title} has been deleted";
                 TempData["messageClass"] = "alert-success";
-                
             }
             else
             {
-                TempData["message"] = $"{toDeleteArticle.Title} could not be deleted";
+                TempData["message"] = $"{toDeleteArticle?.Title ?? "Article"} could not be deleted";
                 return View(nameof(EditArticle), toDeleteArticle);
             }
             return RedirectToAction(nameof(ArticleController.List), "Article");

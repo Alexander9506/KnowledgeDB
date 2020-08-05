@@ -117,6 +117,7 @@ namespace KnowledgeDB.Tests.Controllers
         public void CanSearchForArticleTag()
         {
             //TODO: Function in ArticleController not yet implemented
+            Assert.True(false);
         }
 
     }

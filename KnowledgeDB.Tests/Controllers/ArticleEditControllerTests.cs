@@ -1,4 +1,5 @@
-﻿using KnowledgeDB.Controllers;
+﻿using AngleSharp;
+using KnowledgeDB.Controllers;
 using KnowledgeDB.Models;
 using KnowledgeDB.Models.Repositories;
 using KnowledgeDB.Tests.Helper;
@@ -9,7 +10,10 @@ using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Headers;
+using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace KnowledgeDB.Tests.Controllers
@@ -36,9 +40,6 @@ namespace KnowledgeDB.Tests.Controllers
         [Fact]
         public void CannotEditNonExistentArticle()
         {
-            HttpContext context = new DefaultHttpContext();
-            var tempData = new TempDataDictionary(context, Mock.Of<ITempDataProvider>());
-
             Mock<IArticleRepository> repoMock = new Mock<IArticleRepository>();
             repoMock.Setup(r => r.Articles).Returns(new Article[] {
                 new Article{ ArticleId = 1, Title = "Article1", ModifiedAt = DateTime.Now},
@@ -46,9 +47,9 @@ namespace KnowledgeDB.Tests.Controllers
                 new Article{ ArticleId = 3, Title = "Article3", ModifiedAt = DateTime.Now.AddMinutes(-40)},
             }.AsQueryable<Article>());
 
+            TempDataDictionary tdd = new TempDataDictionary(new DefaultHttpContext(), Mock.Of<ITempDataProvider>());
             ArticleEditController target = new ArticleEditController(repoMock.Object);
-            target.TempData = tempData;
-
+            target.TempData = tdd;
 
             ViewResult viewResult = target.EditArticle(4) as ViewResult;
             Article result = target.EditArticle(4).GetViewModel<Article>();
@@ -61,26 +62,97 @@ namespace KnowledgeDB.Tests.Controllers
         }
 
         [Fact]
-        public void CanSaveValidChanges()
+        public async void CanSaveValidChanges()
         {
+            Mock<IArticleRepository> repoMock = new Mock<IArticleRepository>();
+            repoMock.Setup(r => r.Articles).Returns(new Article[] {
+                new Article{ ArticleId = 1, Title = "Article1", ModifiedAt = DateTime.Now},
+                new Article{ ArticleId = 2, Title = "Article2", ModifiedAt = DateTime.Now.AddMinutes(-20)},
+                new Article{ ArticleId = 3, Title = "Article3", ModifiedAt = DateTime.Now.AddMinutes(-40)},
+            }.AsQueryable<Article>());
+            
+            Article a = new Article { ArticleId = 4, Title = "Article4" };
 
+            repoMock.Setup(r => r.SaveArticleAsync(a)).Returns(Task.FromResult(true));
+
+            ArticleEditController target = new ArticleEditController(repoMock.Object);
+            target.TempData = Mock.Of<ITempDataDictionary>();
+
+            IActionResult result = await target.SaveArticle(a, "/test/url");
+
+            repoMock.Verify(r => r.SaveArticleAsync(a));
+
+            Assert.IsType<RedirectResult>(result);
+            Assert.Equal("/test/url", (result as RedirectResult).Url);
         }
 
         [Fact]
-        public void CannotSaveInvalidChanges()
+        public async void CannotSaveInvalidChanges()
         {
+            Mock<IArticleRepository> repoMock = new Mock<IArticleRepository>();
+            repoMock.Setup(r => r.Articles).Returns(new Article[] {
+                new Article{ ArticleId = 1, Title = "Article1", ModifiedAt = DateTime.Now},
+                new Article{ ArticleId = 2, Title = "Article2", ModifiedAt = DateTime.Now.AddMinutes(-20)},
+                new Article{ ArticleId = 3, Title = "Article3", ModifiedAt = DateTime.Now.AddMinutes(-40)},
+            }.AsQueryable<Article>());
 
+            repoMock.Setup(r => r.SaveArticleAsync(It.IsAny<Article>())).Returns(Task.FromResult(true));
+
+            ArticleEditController target = new ArticleEditController(repoMock.Object);
+            target.TempData = Mock.Of<ITempDataDictionary>();
+            target.ModelState.AddModelError("error", "error");
+
+            Article a = new Article { ArticleId = 4, Title = "Article4" };
+            IActionResult result = await target.SaveArticle(a, "/test/url");
+
+            repoMock.Verify(r => r.SaveArticleAsync(It.IsAny<Article>()), Times.Never());
+
+            Assert.IsType<ViewResult>(result);
+            Assert.Equal(nameof(ArticleEditController.EditArticle), (result as ViewResult).ViewName) ;
         }
 
         [Fact]
-        public void CanDeleteArticle()
+        public async void CanDeleteArticle()
         {
+            Mock<IArticleRepository> repoMock = new Mock<IArticleRepository>();
 
+            Article articleToDelete = new Article { ArticleId = 2, Title = "Article2", ModifiedAt = DateTime.Now.AddMinutes(-20) };
+            repoMock.Setup(r => r.Articles).Returns(new Article[]
+            {
+                new Article{ ArticleId = 1, Title = "Article1", ModifiedAt = DateTime.Now},
+                articleToDelete,
+                new Article{ ArticleId = 3, Title = "Article3", ModifiedAt = DateTime.Now.AddMinutes(-40)},
+            }.AsQueryable());
+
+            repoMock.Setup(r => r.DeleteArticleAsync(articleToDelete)).Returns(Task.FromResult(true));
+
+            ArticleEditController target = new ArticleEditController(repoMock.Object);
+            target.TempData = Mock.Of<ITempDataDictionary>();
+            IActionResult result = await target.DeleteArticle(2);
+
+            RedirectToActionResult redirectResult = Assert.IsType<RedirectToActionResult>(result);
+            Assert.Equal(nameof(ArticleController.List), redirectResult?.ActionName ?? "");
         }
         [Fact]
-        public void CannotDeleteNonExistentArticle()
+        public async void CannotDeleteNonExistentArticle()
         {
+            Mock<IArticleRepository> repoMock = new Mock<IArticleRepository>();
 
+            repoMock.Setup(r => r.Articles).Returns(new Article[]
+            {
+                new Article{ ArticleId = 1, Title = "Article1", ModifiedAt = DateTime.Now},
+                 new Article { ArticleId = 2, Title = "Article2", ModifiedAt = DateTime.Now.AddMinutes(-20) },
+                new Article{ ArticleId = 3, Title = "Article3", ModifiedAt = DateTime.Now.AddMinutes(-40)},
+            }.AsQueryable());
+            
+            repoMock.Setup(r => r.DeleteArticleAsync(It.IsAny<Article>())).Returns(Task.FromResult(false));
+
+            ArticleEditController target = new ArticleEditController(repoMock.Object);
+            target.TempData = Mock.Of<ITempDataDictionary>();
+            IActionResult result = await target.DeleteArticle(4);
+
+            ViewResult viewResult = Assert.IsType<ViewResult>(result);
+            Assert.Equal(nameof(ArticleEditController.EditArticle), viewResult?.ViewName);
         }
     }
 }

@@ -1,0 +1,11 @@
+﻿@model TagMenuViewModel
+
+
+<ul class="navbar-nav">
+    @foreach(ArticleTag tag in Model.Tags)
+    {
+        <li class="nav-item">
+            <a class="nav-link @(tag.Name == Model.CurrentTag ? "active" : "")" href="@Url.Action("List", "Article", new { articleTagId=tag.ArticleTagId})">@tag.Name</a>
+        </li>
+    }
+</ul>

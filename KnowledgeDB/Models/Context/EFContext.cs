@@ -13,9 +13,7 @@ namespace KnowledgeDB.Models.Context
 
         public DbSet<Article> Articles { get; set; }
         public DbSet<ArticleTag> ArticleTags { get; set; }
-
         public DbSet<FileContainer> FileContainers { get; set; }
-
 
         public EFContext(DbContextOptions<EFContext> options, IConfiguration configuration) : base(options)
         {

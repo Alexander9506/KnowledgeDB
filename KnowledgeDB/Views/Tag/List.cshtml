@@ -1,0 +1,25 @@
+﻿@model ArticleListViewModel
+
+@{ListViewModel listModel = Model.ListViewModel; }
+
+
+@section header_toolbar{ 
+    <a image="New" asp-action="EditArticle" asp-controller="ArticleEdit">New</a>
+}
+
+<h3>@Model.PageName</h3>
+
+<div>
+    @foreach (var entry in listModel.Entries)
+    {
+        @await Html.PartialAsync(listModel.PartialViewName, entry) 
+    }
+</div>
+
+<div page-model="@Model.ListViewModel.Pagination" page-action="List"
+     page-classes-enabled="true"
+     page-class="btn"
+     page-class-normal="btn-secondary"
+     page-class-selected="btn-primary"
+     page-url-articleTagId="@Model.ArticleTagId"
+     class="btn-group m-1 float-right"></div>

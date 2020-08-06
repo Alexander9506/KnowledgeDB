@@ -19,8 +19,9 @@
         </button>
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav mr-auto">
-            </ul>
+            <div class="d-flex mr-auto">
+                @await Component.InvokeAsync("TagNavigationMenu", new { showEntries = 4 })
+            </div>
 
             @await Html.PartialAsync("_LoginPartial")
 

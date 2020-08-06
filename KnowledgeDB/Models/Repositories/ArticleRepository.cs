@@ -21,7 +21,7 @@ namespace KnowledgeDB.Models.Repositories
 
         public IQueryable<Article> Articles => context.Articles.Include(a => a.RefToTags).ThenInclude(rtt => rtt.ArticelTag);
 
-        public IQueryable<ArticleTag> ArticleTags => context.ArticleTags;
+        public IQueryable<ArticleTag> ArticleTags => context.ArticleTags.Include(at => at.RefToArticles).ThenInclude(rtt => rtt.Article);
 
         public async Task<bool> DeleteArticleAsync(Article article)
         {

@@ -28,7 +28,7 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="Input.ProfilePicturePath" style="width: 100%;"></label>
-                @if (Model.Input.ProfilePicturePath != null)
+                @if (!String.IsNullOrWhiteSpace(Model.Input.ProfilePicturePath))
                 {
                     <img id="profilePicture" style="width:350px;height:350px; object-fit:cover" image-path-on-server="@System.IO.Path.GetRelativePath(_environment.WebRootPath, @Model.Input.ProfilePicturePath).Replace("\\", "/")" width="350" height="350" imbed-in-background="true" keep-ratio="true" fast="true" />
                 }

@@ -68,7 +68,8 @@ namespace KnowledgeDB.Areas.Identity.Pages.Account.Manage
 
             Input = new InputModel
             {
-                PhoneNumber = phoneNumber
+                PhoneNumber = phoneNumber,
+                ProfilePicturePath = user.ProfilePicturePath,
             };
         }
 
